@@ -12,12 +12,6 @@ const DevHTMLShell string = `<!doctype html>
 <html lang="en">
 
 <head>
-  <script type="module">
-    import { injectIntoGlobalHook } from "http://localhost:5173/@react-refresh";
-    injectIntoGlobalHook(window);
-    window.$RefreshReg$ = () => {};
-    window.$RefreshSig$ = () => (type) => type;
-  </script>
   <script type="module" src="http://localhost:5173/@vite/client"></script>
 
   <!-- Server Props -->
