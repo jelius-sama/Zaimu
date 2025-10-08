@@ -4,15 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import AlertTriangle from "lucide-solid/icons/alert-triangle"
 import Home from "lucide-solid/icons/home"
 import ArrowLeft from "lucide-solid/icons/arrow-left"
-
 import { A } from "@solidjs/router"
 import { useActiveTitle } from "@/contexts/config"
+import { PathBasedMetadata } from "@/contexts/metadata"
 
 export default function NotFound() {
   useActiveTitle("Page Not Found")
 
   return (
     <Fragment>
+      <PathBasedMetadata paths={["*", "#not_found"]} />
+
       <div class="flex flex-1 flex-col gap-4 p-4">
         <div class="mx-auto max-w-md space-y-6 text-center">
           <div class="space-y-4">

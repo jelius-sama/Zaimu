@@ -5,6 +5,7 @@ import RefreshCw from "lucide-solid/icons/refresh-cw"
 import Home from "lucide-solid/icons/home"
 import AlertCircle from "lucide-solid/icons/alert-circle"
 import Fragment from "@/lib/fragment"
+import { PathBasedMetadata } from "@/contexts/metadata"
 import { A } from "@solidjs/router"
 import { useActiveTitle } from "@/contexts/config"
 
@@ -18,6 +19,8 @@ export default function ClientError({ error, reset }: ClientErrorProps) {
 
   return (
     <Fragment>
+      <PathBasedMetadata paths={["*", "#client_error"]} />
+
       <div class="flex flex-1 flex-col gap-4 p-4">
         <div class="mx-auto max-w-md space-y-6 text-center">
           <div class="space-y-4">

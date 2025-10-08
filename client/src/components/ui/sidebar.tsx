@@ -217,7 +217,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
           {/* This is what handles the sidebar gap on desktop */}
           <div
             class={cn(
-              "w-[var(--sidebar-width)] konnichiwa relative h-svh bg-transparent transition-[width] duration-200 ease-linear",
+              "w-[var(--sidebar-width)] relative h-svh bg-transparent transition-[width] duration-200 ease-linear",
               "group-data-[collapsible=offcanvas]:w-0",
               "group-data-[side=right]:rotate-180",
               local.variant === "floating" || local.variant === "inset"
@@ -602,7 +602,7 @@ const SidebarMenuSkeleton: Component<SidebarMenuSkeletonProps> = (rawProps) => {
     >
       {local.showIcon && <Skeleton class="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />}
       <Skeleton
-        class="max-w-(--skeleton-width) h-4 flex-1"
+        class="max-w-[var(--skeleton-width)] h-4 flex-1"
         data-sidebar="menu-skeleton-text"
         style={{
           "--skeleton-width": width()

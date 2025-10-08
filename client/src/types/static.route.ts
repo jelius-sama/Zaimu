@@ -13,7 +13,7 @@ export interface MetaCharsetTag {
 }
 
 export interface MetaHttpEquivTag {
-    ["http-equiv"]: string;
+    ["http-equiv"]: "content-security-policy" | "content-type" | "default-style" | "x-ua-compatible" | "refresh" | undefined;
     content: string;
 }
 

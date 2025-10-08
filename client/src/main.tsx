@@ -9,6 +9,7 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { ColorModeProvider, ColorModeScript, createLocalStorageManager } from "@kobalte/core"
+import { MetaProvider } from "@solidjs/meta"
 
 const queryClient = new QueryClient()
 
@@ -126,15 +127,17 @@ render(() => {
   return (
     <ConfigProvider>
       <QueryClientProvider client={queryClient}>
-        <ColorModeScript storageType={storageManager.type} />
-        <ColorModeProvider storageManager={storageManager}>
+        <MetaProvider>
+          <ColorModeScript storageType={storageManager.type} />
+          <ColorModeProvider storageManager={storageManager}>
 
-          <Router root={(props: RouteSectionProps) => <App {...props} />}>
-            <Route path='/' component={() => <ServerErrorWrapper comp={<Home />} />} />
-            <Route path='*' component={() => <ServerErrorWrapper comp={<NotFound />} />} />
-          </Router>
-          <Suspense><Toaster richColors={true} /></Suspense>
-        </ColorModeProvider>
+            <Router root={(props: RouteSectionProps) => <App {...props} />}>
+              <Route path='/' component={() => <ServerErrorWrapper comp={<Home />} />} />
+              <Route path='*' component={() => <ServerErrorWrapper comp={<NotFound />} />} />
+            </Router>
+            <Suspense><Toaster richColors={true} /></Suspense>
+          </ColorModeProvider>
+        </MetaProvider>
       </QueryClientProvider>
     </ConfigProvider>
   )

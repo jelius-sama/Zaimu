@@ -1,4 +1,4 @@
-import { createContext, useContext, createSignal, type JSX, onCleanup, createRenderEffect } from "solid-js";
+import { createContext, useContext, createSignal, type JSX, onCleanup, createRenderEffect, on } from "solid-js";
 import AppConfigJSON from "~/client.config.json";
 import StaticRouteJSON from "~/static.route.json";
 import { type StaticRoute } from "@/types/static.route";
@@ -56,13 +56,11 @@ export function useActiveTitle(title: string | null) {
   const { setActiveTitle } = useConfig();
   const location = useLocation();
 
-  createRenderEffect(() => {
-    setActiveTitle(title);
-    // Reset on unmount or route change
-    onCleanup(() => setActiveTitle(null));
-
-    // Access reactive dependencies
-    title; // trigger effect when title changes
-    location.pathname; // trigger effect when route changes
-  });
+  createRenderEffect(on(
+    () => [title, location.pathname],
+    () => {
+      setActiveTitle(title);
+      // Reset on unmount or route change
+      onCleanup(() => setActiveTitle(null));
+    }));
 }
