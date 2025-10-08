@@ -1,6 +1,6 @@
 import Home from "lucide-solid/icons/home"
 import AlertTriangle from "lucide-solid/icons/alert-triangle"
-// import { A } from "@solidjs/router"
+import { useLocation, A } from "@solidjs/router"
 import { For } from "solid-js"
 import {
     Sidebar,
@@ -12,6 +12,8 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
+    useIsMobile
 } from "@/components/ui/sidebar"
 
 const ITEMS = [
@@ -28,6 +30,16 @@ const ITEMS = [
 ]
 
 export function AppSidebar() {
+    const location = useLocation()
+    const sidebarCtx = useSidebar()
+    const isMobile = useIsMobile()
+
+    const handleClose = () => {
+        if (isMobile()) {
+            if (sidebarCtx.openMobile()) sidebarCtx.setOpenMobile(false)
+        }
+    }
+
     return (
         <Sidebar>
             <SidebarHeader class="border-b border-sidebar-border">
@@ -49,11 +61,9 @@ export function AppSidebar() {
                             <For each={ITEMS}>
                                 {(item) => (
                                     <SidebarMenuItem>
-                                        <SidebarMenuButton>
-                                            <a href={item.url}>
-                                                <item.icon />
-                                                <span>{item.title}</span>
-                                            </a>
+                                        <SidebarMenuButton onClick={handleClose} isActive={location.pathname === item.url} as={A} href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 )}

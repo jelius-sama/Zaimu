@@ -1,10 +1,9 @@
 /* @refresh reload */
 import '@/app.css'
-import { createSignal, type JSX, children, onMount, createEffect, lazy, Suspense, createRenderEffect, ErrorBoundary } from 'solid-js'
+import { createSignal, type JSX, children, onMount, lazy, Suspense, ErrorBoundary, createEffect, createRenderEffect } from 'solid-js'
 import { render } from 'solid-js/web'
-import Fragment from "@/lib/fragment"
 import { ConfigProvider, useConfig } from '@/contexts/config'
-import { Router, Route, useLocation, type RouteSectionProps } from "@solidjs/router";
+import { Router, Route, type RouteSectionProps, useLocation } from "@solidjs/router";
 import { QueryClientProvider, QueryClient } from '@tanstack/solid-query'
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
@@ -33,15 +32,10 @@ if (!rootEl) {
 
 const App = (props: RouteSectionProps) => {
   const config = useConfig()
-  // const location = useLocation()
-  //
-  // createRenderEffect(() => {
-  //   location.pathname
-  //   document.documentElement.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  // });
 
   return (
-    <Fragment>
+    <SidebarProvider>
+      <AppSidebar />
       <ErrorBoundary fallback={(err) => (<ClientError error={err} />)}>
         <Suspense>
           <SidebarInset>
@@ -55,12 +49,11 @@ const App = (props: RouteSectionProps) => {
           </SidebarInset>
         </Suspense>
       </ErrorBoundary>
-    </Fragment>
+    </SidebarProvider>
   )
 }
 
-const ServerErrorWrapper = ({ comp }: { comp: JSX.Element }) => {
-  const resolved = children(() => comp)
+const ServerErrorWrapper = (props: { comp: JSX.Element }) => {
   const [errorPath, setErrorPath] = createSignal<string | null>(null)
   const location = useLocation()
   const config = useConfig()
@@ -84,8 +77,10 @@ const ServerErrorWrapper = ({ comp }: { comp: JSX.Element }) => {
         console.error('Failed to parse SSR data:', err)
       }
     }
+
     setIsSSRLoaded(true)
   })
+
 
   // Clear error when navigating to a different path
   createEffect(() => {
@@ -94,7 +89,7 @@ const ServerErrorWrapper = ({ comp }: { comp: JSX.Element }) => {
     }
   })
 
-  return !isSSRLoaded() ? <p>Loading...</p> : errorPath() === location.pathname ? <h3>500 - Internal server error</h3> : resolved()
+  return !isSSRLoaded() ? <p>Loading...</p> : errorPath() === location.pathname ? <h3>500 - Internal server error</h3> : props.comp
 }
 
 export const Authenticate = ({ page }: { page: JSX.Element }) => {
@@ -133,14 +128,11 @@ render(() => {
       <QueryClientProvider client={queryClient}>
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
-          <SidebarProvider>
-            <AppSidebar />
 
-            <Router root={(props: RouteSectionProps) => <App {...props} />}>
-              <Route path='/' component={() => <ServerErrorWrapper comp={<Home />} />} />
-              <Route path='*' component={() => <ServerErrorWrapper comp={<NotFound />} />} />
-            </Router>
-          </SidebarProvider>
+          <Router root={(props: RouteSectionProps) => <App {...props} />}>
+            <Route path='/' component={() => <ServerErrorWrapper comp={<Home />} />} />
+            <Route path='*' component={() => <ServerErrorWrapper comp={<NotFound />} />} />
+          </Router>
           <Suspense><Toaster richColors={true} /></Suspense>
         </ColorModeProvider>
       </QueryClientProvider>
