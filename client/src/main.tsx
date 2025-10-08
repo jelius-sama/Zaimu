@@ -1,6 +1,6 @@
 /* @refresh reload */
 import '@/app.css'
-import { createSignal, type JSX, children, onMount, lazy, Suspense, ErrorBoundary, createEffect, createRenderEffect } from 'solid-js'
+import { createSignal, type JSX, onMount, lazy, Suspense, ErrorBoundary, createEffect, createRenderEffect } from 'solid-js'
 import { render } from 'solid-js/web'
 import { ConfigProvider, useConfig } from '@/contexts/config'
 import { Router, Route, type RouteSectionProps, useLocation } from "@solidjs/router";
@@ -93,8 +93,7 @@ const ServerErrorWrapper = (props: { comp: JSX.Element }) => {
   return !isSSRLoaded() ? <p>Loading...</p> : errorPath() === location.pathname ? <h3>500 - Internal server error</h3> : props.comp
 }
 
-export const Authenticate = ({ page }: { page: JSX.Element }) => {
-  const resolved = children(() => page)
+export const Authenticate = (props: { page: JSX.Element }) => {
   const [status, setStatus] = createSignal<"pending" | "success" | "error">("pending")
 
   onMount(() => {
@@ -118,7 +117,7 @@ export const Authenticate = ({ page }: { page: JSX.Element }) => {
   if (status() === "pending") return <p>Loading...</p>
   if (status() === "error") return <p>Loading...</p>
 
-  return resolved()
+  return props.page
 }
 
 render(() => {

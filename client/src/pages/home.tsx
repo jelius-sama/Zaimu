@@ -3,9 +3,11 @@ import Fragment from "@/lib/fragment"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { StaticMetadata } from "@/contexts/metadata"
+import { createSignal } from "solid-js"
 
 export default function HomePage() {
   useActiveTitle("Home")
+  const [count, setCount] = createSignal<number>(0)
 
   return (
     <Fragment>
@@ -33,8 +35,7 @@ export default function HomePage() {
                 <p class="text-sm text-muted-foreground">✓ solid-ui components with design tokens</p>
               </div>
               <div class="flex gap-2">
-                <Button>Get Started</Button>
-                <Button variant="outline">Learn More</Button>
+                <Button onClick={() => setCount(count() + 1)}>Counter {count()}</Button>
               </div>
             </CardContent>
           </Card>
