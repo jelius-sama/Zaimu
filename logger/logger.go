@@ -6,7 +6,21 @@ import (
 	"time"
 )
 
-var LoggerStyle string = "brackets"
+var (
+	LoggerStyle string = "brackets"
+	isDebugMode *bool
+)
+
+// Configure sets up debug mode detection (call once at startup)
+func Configure(envVar, devValue string) {
+	enabled := os.Getenv(envVar) == devValue
+	isDebugMode = &enabled
+
+	if enabled {
+		Info("DEBUG MODE ENABLED")
+		Error("If you see this in production, STOP immediately!")
+	}
+}
 
 func SetStyle(s string) {
 	switch s {
@@ -46,7 +60,15 @@ func Error(a ...any) {
 }
 
 func Debug(a ...any) {
-	fmt.Println(append(append([]any{applyStyle("\n\033[34m%s", "DEBUG")}, a...), []any{"\033[0m"}...)...)
+	// INFO: Only if we are in dev mode we print the debug logs.
+	if isDebugMode == nil {
+		Error("Debug not configured! Call Configure() before using Debug()")
+		return
+	}
+
+	if *isDebugMode {
+		fmt.Println(append(append([]any{applyStyle("\n\033[34m%s", "DEBUG")}, a...), []any{"\033[0m"}...)...)
+	}
 }
 
 func Panic(a ...any) {
