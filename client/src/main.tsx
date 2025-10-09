@@ -17,6 +17,7 @@ const Home = lazy(() => import("@/pages/home"))
 const NotFound = lazy(() => import("@/pages/not-found"))
 const ClientError = lazy(() => import("@/pages/client-error"))
 const Toaster = lazy(() => import('@/components/ui/sonner'))
+const Bench = lazy(() => import("@/pages/bench"))
 
 let rootEl = document.getElementById('root') as HTMLDivElement | null;
 
@@ -132,6 +133,7 @@ render(() => {
 
             <Router root={(props: RouteSectionProps) => <App {...props} />}>
               <Route path='/' component={() => <ServerErrorWrapper comp={<Home />} />} />
+              <Route path='/bench' component={() => <ServerErrorWrapper comp={<Bench />} />} />
               <Route path='*' component={() => <ServerErrorWrapper comp={<NotFound />} />} />
             </Router>
             <Suspense><Toaster richColors={true} /></Suspense>
