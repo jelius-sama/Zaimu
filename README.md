@@ -1,6 +1,6 @@
-# Template
+# Ζaimu
 
-A modern, self-hostable developer portfolio powered by a **Go backend** and **React frontend (via Bun & Vite)**.
+Zaimu is a self-hosted finance tracker that parses bank emails and turns them into a clean personal ledger with zero manual entry.
 
 This project is optimized for performance, portability, and developer experience, using a clean architecture with declarative metadata and zero server-side JavaScript dependencies.
 
@@ -77,7 +77,7 @@ Extract the archive and run the binary:
 
 ```bash
 tar -xzf archive_prod.tar.gz
-./bin/Template-1.x.x
+./bin/Ζaimu-1.x.x
 ```
 
 Optional:

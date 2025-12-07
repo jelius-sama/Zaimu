@@ -1,7 +1,7 @@
 {
-    "name": "Template",
-    "short_name": "Template",
-    "description": "Go + React Template",
+    "name": "Ζaimu",
+    "short_name": "Ζaimu",
+    "description": "Zaimu is a self-hosted finance tracker that parses bank emails and turns them into a clean personal ledger with zero manual entry.",
     "theme_color": "#000000",
     "background_color": "#000000",
     "start_url": "/",

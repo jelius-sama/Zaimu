@@ -1,7 +1,7 @@
 package util
 
 import (
-	"Template/types"
+	"zaimu/types"
 	"encoding/json"
 	"net/http"
 	"strconv"

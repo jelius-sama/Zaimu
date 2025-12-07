@@ -1,7 +1,7 @@
 package api
 
 import (
-	"Template/logger"
+	"zaimu/logger"
 	"fmt"
 	"net/http"
 	"strings"

@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"Template/types"
+	"zaimu/types"
 	"fmt"
 	"net/http"
 	"strings"

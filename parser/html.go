@@ -1,8 +1,8 @@
 package parser
 
 import (
-	vars "Template"
-	"Template/types"
+	vars "zaimu"
+	"zaimu/types"
 	"errors"
 	"io/fs"
 	"os"

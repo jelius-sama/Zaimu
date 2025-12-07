@@ -1,10 +1,10 @@
 package api
 
 import (
-	"Template/logger"
-	"Template/parser"
-	"Template/types"
-	"Template/util"
+	"zaimu/logger"
+	"zaimu/parser"
+	"zaimu/types"
+	"zaimu/util"
 	"bytes"
 	"encoding/json"
 	"fmt"

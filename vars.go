@@ -1,7 +1,7 @@
 package vars
 
 import (
-	"Template/types"
+	"zaimu/types"
 	"embed"
 )
 

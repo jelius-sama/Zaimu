@@ -4,6 +4,6 @@
         "statement_valid": true,
         "port_to_use": "5500"
     },
-    "home_path": "/home/template",
-    "host": "https://template.example.com"
+    "home_path": "/home/jelius-sama/zaimu",
+    "host": "https://zaimu.jelius.dev"
 }

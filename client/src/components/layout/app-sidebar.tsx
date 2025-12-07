@@ -49,7 +49,7 @@ export function AppSidebar() {
                     </div>
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold">Acme Inc</span>
-                        <span class="text-xs text-sidebar-foreground/70">Template</span>
+                        <span class="text-xs text-sidebar-foreground/70">Ζaimu</span>
                     </div>
                 </div>
             </SidebarHeader>

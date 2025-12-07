@@ -38,9 +38,10 @@ dev_build:
 		    -s -w \
 		    -X main.Environment=development \
 		    -X main.Host=$(HOST) \
+		    -X main.Home=$(HOME_PATH) \
 		    -X main.DevPort=$(DEV_PORT) \
 		    -X main.Version=$(VERSION)" \
-		    -trimpath -buildvcs=false -o ./tmp/Template ./cmd
+		    -trimpath -buildvcs=false -o ./tmp/dev-build ./cmd
 
 dev:
 	@echo "Starting development servers..."

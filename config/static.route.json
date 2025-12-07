@@ -13,7 +13,7 @@
         "link": [
             {
                 "rel": "icon",
-                "href": "/assets/Template.png"
+                "href": "/assets/zaimu.png"
             },
             {
                 "rel": "manifest",
@@ -197,15 +197,15 @@
     },
     {
         "path": "/",
-        "title": "Home | Template",
+        "title": "Home | Ζaimu",
         "meta": [
             {
                 "name": "description",
-                "content": "Go + React - Template"
+                "content": "Zaimu is a self-hosted finance tracker that parses bank emails and turns them into a clean personal ledger with zero manual entry."
             },
             {
                 "name": "application-name",
-                "content": "Template"
+                "content": "Ζaimu"
             },
             {
                 "name": "robots",
@@ -221,7 +221,7 @@
             },
             {
                 "name": "apple-mobile-web-app-title",
-                "content": "Template"
+                "content": "Ζaimu"
             },
             {
                 "name": "theme-color",
@@ -233,23 +233,23 @@
             },
             {
                 "property": "og:title",
-                "content": "Template"
+                "content": "Ζaimu"
             },
             {
                 "property": "og:description",
-                "content": "Go + React Template"
+                "content": "Zaimu is a self-hosted finance tracker that parses bank emails and turns them into a clean personal ledger with zero manual entry."
             },
             {
                 "property": "og:url",
-                "content": "https://template.example.com"
+                "content": "https://zaimu.jelius.dev"
             },
             {
                 "property": "og:site_name",
-                "content": "Template"
+                "content": "Ζaimu"
             },
             {
                 "property": "og:image",
-                "content": "/assets/Template.png"
+                "content": "/assets/zaimu.png"
             },
             {
                 "property": "og:type",
@@ -269,34 +269,34 @@
             },
             {
                 "name": "twitter:title",
-                "content": "Template"
+                "content": "Ζaimu"
             },
             {
                 "name": "twitter:description",
-                "content": "Go + React - Template"
+                "content": "Zaimu is a self-hosted finance tracker that parses bank emails and turns them into a clean personal ledger with zero manual entry."
             },
             {
                 "name": "twitter:image",
-                "content": "/assets/Template.png"
+                "content": "/assets/zaimu.png"
             }
         ],
         "link": [
             {
                 "rel": "canonical",
-                "href": "https://template.example.com"
+                "href": "https://zaimu.jelius.dev"
             }
         ]
     },
     {
         "path": "#not_found",
-        "title": "Not Found | Template"
+        "title": "Not Found | Ζaimu"
     },
     {
         "path": "#internal_server_error",
-        "title": "Internal Server Error | Template"
+        "title": "Internal Server Error | Ζaimu"
     },
     {
         "path": "#client_error",
-        "title": "Client error | Template"
+        "title": "Client error | Ζaimu"
     }
 ]

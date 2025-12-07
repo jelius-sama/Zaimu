@@ -1,4 +1,4 @@
-module Template
+module zaimu
 
 go 1.24.5
 

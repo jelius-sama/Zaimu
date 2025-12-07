@@ -1,12 +1,12 @@
 package api
 
 import (
-	vars "Template"
-	"Template/api/handler"
-	"Template/logger"
-	"Template/parser"
-	"Template/types"
-	"Template/util"
+	vars "zaimu"
+	"zaimu/api/handler"
+	"zaimu/logger"
+	"zaimu/parser"
+	"zaimu/types"
+	"zaimu/util"
 	"bytes"
 	"fmt"
 	"io/fs"

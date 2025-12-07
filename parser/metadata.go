@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"Template/types"
+	"zaimu/types"
 	"encoding/json"
 	"fmt"
 	"html"
