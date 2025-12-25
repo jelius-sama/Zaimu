@@ -9,7 +9,7 @@ import { useActiveTitle } from "@/contexts/config"
 import { PathBasedMetadata } from "@/contexts/metadata"
 
 export default function NotFound() {
-  useActiveTitle("Page Not Found")
+  useActiveTitle({ title: "Page Not Found", description: null })
 
   return (
     <Fragment>

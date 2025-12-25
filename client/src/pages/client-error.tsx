@@ -15,7 +15,7 @@ interface ClientErrorProps {
 }
 
 export default function ClientError({ error, reset }: ClientErrorProps) {
-  useActiveTitle("Client Error")
+  useActiveTitle({ title: "Client Error", description: null })
 
   return (
     <Fragment>

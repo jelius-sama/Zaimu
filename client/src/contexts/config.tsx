@@ -14,6 +14,8 @@ type SSRData = {
 type ConfigState = {
   activeTitle: () => string | null; // signal accessor
   setActiveTitle: (title: string | null) => void;
+  activeDescription: () => string | null; // signal accessor
+  setActiveDescription: (desc: string | null) => void;
   app: typeof AppConfigJSON;
   staticRoute: StaticRoute[];
   ssrData: () => SSRData | null; // signal accessor
@@ -27,6 +29,7 @@ const ConfigProviderContext = createContext<ConfigState>();
 export function ConfigProvider(props: { children: JSX.Element }) {
   const [ssrData, setSSRData] = createSignal<SSRData | null>(null);
   const [activeTitle, setActiveTitle] = createSignal<string | null>(null);
+  const [activeDescription, setActiveDescription] = createSignal<string | null>(null);
 
   return (
     <ConfigProviderContext.Provider
@@ -37,6 +40,8 @@ export function ConfigProvider(props: { children: JSX.Element }) {
         setSSRData,
         activeTitle, // pass the signal itself
         setActiveTitle,
+        activeDescription,
+        setActiveDescription,
       }}
     >
       {props.children}
@@ -52,15 +57,19 @@ export function useConfig() {
 }
 
 // Hook to update activeTitle reactively
-export function useActiveTitle(title: string | null) {
-  const { setActiveTitle } = useConfig();
+export function useActiveTitle({ title, description }: { title: string | null; description: string | null }) {
+  const { setActiveTitle, setActiveDescription } = useConfig();
   const location = useLocation();
 
   createRenderEffect(on(
-    () => [title, location.pathname],
+    () => [title, description, location.pathname],
     () => {
       setActiveTitle(title);
+      setActiveDescription(description)
       // Reset on unmount or route change
-      onCleanup(() => setActiveTitle(null));
+      onCleanup(() => {
+        setActiveTitle(null);
+        setActiveDescription(null);
+      });
     }));
 }

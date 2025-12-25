@@ -10,14 +10,17 @@ import { AppSidebar } from "@/components/layout/app-sidebar"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { ColorModeProvider, ColorModeScript, createLocalStorageManager } from "@kobalte/core"
 import { MetaProvider } from "@solidjs/meta"
+import { appState } from './contexts/app';
 
 const queryClient = new QueryClient()
 
-const Home = lazy(() => import("@/pages/home"))
+const Dashboard = lazy(() => import("@/pages/dashboard"))
 const NotFound = lazy(() => import("@/pages/not-found"))
 const ClientError = lazy(() => import("@/pages/client-error"))
 const Toaster = lazy(() => import('@/components/ui/sonner'))
-const Bench = lazy(() => import("@/pages/bench"))
+const Ledger = lazy(() => import("@/pages/ledger"))
+const Settings = lazy(() => import("@/pages/settings"))
+const Insights = lazy(() => import("@/pages/insights"))
 
 let rootEl = document.getElementById('root') as HTMLDivElement | null;
 
@@ -34,6 +37,35 @@ if (!rootEl) {
 
 const App = (props: RouteSectionProps) => {
   const config = useConfig()
+  const [sidebarContentHeight, setSidebarContentHeight] = createSignal(0);
+  let ro: ResizeObserver | undefined;
+
+  const findAndObserve = () => {
+    const el = document.querySelector<HTMLElement>('[data-sidebar="header"]');
+    if (!el) return false;
+
+    ro = new ResizeObserver(([e]) => {
+      console.log("[DEBUG]: raw height:", e.contentRect.height)
+      setSidebarContentHeight(e.contentRect.height);
+    });
+    ro.observe(el);
+    return true;
+  };
+
+  onMount(() => {
+    if (findAndObserve()) return;
+
+    const mo = new MutationObserver(() => {
+      if (findAndObserve()) mo.disconnect();
+    });
+
+    mo.observe(document.body, { childList: true, subtree: true });
+  });
+
+  createEffect(() => {
+    console.log(`[DEBUG] ro: ${ro}`)
+    console.log(`[DEBUG] sidebarContentHeight: ${sidebarContentHeight()}`)
+  })
 
   return (
     <SidebarProvider>
@@ -41,13 +73,41 @@ const App = (props: RouteSectionProps) => {
       <ErrorBoundary fallback={(err) => (<ClientError error={err} />)}>
         <Suspense>
           <SidebarInset>
-            <header class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border px-4">
+            <header class="flex shrink-0 items-center gap-2 border-b border-sidebar-border px-4"
+              /* NOTE: We are trying to set the same height as sidebar header */
+              /* INFO: First we calculate the actual content height then account for top and bottom padding and then the border width */
+              /* INFO: This gives us the formula: `sidebarHeaderHeight()` + `0.5*2 rem` + `1 px`*/
+              style={{ height: sidebarContentHeight() > 0 ? `calc(${sidebarContentHeight()}px + ${0.5 * 2}rem + 1px)` : "4.3125rem" }}>
+              {
+                /* NOTE: If the sidebar is initially closed, `sidebarContentHeight` may be 0.
+                 *       We could re-calculate `sidebarContentHeight` after the sidebar is opened
+                 *       and capture the correct height, but that would cause a sudden and abrupt
+                 *       layout shift, which may be uncomfortable for the user.
+                 *
+                 * INFO: Another option would be to render the sidebar off-screen (out of view)
+                 *       and measure its height there, but this adds complexity and is likely
+                 *       not worth the trade-off.
+                 */
+              }
               <SidebarTrigger class="-ml-1" />
               <div class="flex items-center gap-2">
-                <h1 class="text-lg font-semibold">{config.activeTitle()}</h1>
+                <h1
+                  class="text-lg font-semibold transition-opacity duration-200 ease-out"
+                  classList={{
+                    "opacity-0 pointer-events-none":
+                      appState.pageTitleVisible !== false,
+                    "opacity-100":
+                      appState.pageTitleVisible === false,
+                  }}
+                >
+                  {config.activeTitle()}
+                </h1>
               </div>
+
             </header>
-            {props.children}
+            <section class="w-full h-[calc(100vh_-_4rem)] overflow-scroll">
+              {props.children}
+            </section>
           </SidebarInset>
         </Suspense>
       </ErrorBoundary>
@@ -132,8 +192,10 @@ render(() => {
           <ColorModeProvider storageManager={storageManager}>
 
             <Router root={(props: RouteSectionProps) => <App {...props} />}>
-              <Route path='/' component={() => <ServerErrorWrapper comp={<Home />} />} />
-              <Route path='/bench' component={() => <ServerErrorWrapper comp={<Bench />} />} />
+              <Route path='/' component={() => <ServerErrorWrapper comp={<Dashboard />} />} />
+              <Route path='/settings' component={() => <ServerErrorWrapper comp={<Settings />} />} />
+              <Route path='/ledger' component={() => <ServerErrorWrapper comp={<Ledger />} />} />
+              <Route path='/insights' component={() => <ServerErrorWrapper comp={<Insights />} />} />
               <Route path='*' component={() => <ServerErrorWrapper comp={<NotFound />} />} />
             </Router>
             <Suspense><Toaster richColors={true} /></Suspense>

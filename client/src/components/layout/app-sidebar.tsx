@@ -1,5 +1,5 @@
 import Home from "lucide-solid/icons/home"
-import AlertTriangle from "lucide-solid/icons/alert-triangle"
+import BarChart3 from "lucide-solid/icons/bar-chart-3"
 import { useLocation, A } from "@solidjs/router"
 import { For } from "solid-js"
 import {
@@ -18,14 +18,24 @@ import {
 
 const ITEMS = [
     {
-        title: "Home",
+        title: "Dashboard",
         url: "/",
+        icon: BarChart3,
+    },
+    {
+        title: "Ledger",
+        url: "/ledger",
         icon: Home,
     },
     {
-        title: "Not Found",
-        url: "/not-found",
-        icon: AlertTriangle,
+        title: "Insights",
+        url: "/insights",
+        icon: Home,
+    },
+    {
+        title: "Settings",
+        url: "/settings",
+        icon: Home,
     },
 ]
 
@@ -44,12 +54,10 @@ export function AppSidebar() {
         <Sidebar>
             <SidebarHeader class="border-b border-sidebar-border">
                 <div class="flex items-center gap-2 px-2 py-2">
-                    <div class="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                        <span class="text-sm font-bold">A</span>
-                    </div>
+                    <img src="/assets/zaimu.png" class="flex size-8 items-center justify-center rounded-sm bg-sidebar-primary" />
                     <div class="flex flex-col">
-                        <span class="text-sm font-semibold">Acme Inc</span>
-                        <span class="text-xs text-sidebar-foreground/70">Ζaimu</span>
+                        <span class="text-sm font-semibold">Zaimu</span>
+                        <span class="text-xs text-sidebar-foreground/70">財務</span>
                     </div>
                 </div>
             </SidebarHeader>
