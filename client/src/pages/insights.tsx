@@ -5,7 +5,12 @@ import { StaticMetadata } from "@/contexts/metadata"
 import { mockCategorySummary, formatCurrency } from "@/lib/mock-data"
 import { Chart as ChartJS, registerables } from 'chart.js'
 import { DefaultChart as Chart } from 'solid-chartjs'
-import { onMount } from "solid-js"
+import { onMount, createMemo } from "solid-js"
+
+// Helper function to get computed CSS variable
+function getCSSVariable(variable: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
+}
 
 export default function InsightsPage() {
   useActiveTitle({ title: "Insights", description: "Deep dive into your spending patterns and trends." })
@@ -16,13 +21,18 @@ export default function InsightsPage() {
 
   const topCategories = mockCategorySummary.slice(0, 5)
 
-  const chartColors = {
-    chart1: "hsl(var(--color-chart-1))",
-    chart2: "hsl(var(--color-chart-2))",
-    chart3: "hsl(var(--color-chart-3))",
-    chart4: "hsl(var(--color-chart-4))",
-    chart5: "hsl(var(--color-chart-5))",
-  }
+  // Compute colors from CSS variables
+  const chartColors = createMemo(() => ({
+    chart1: `hsl(${getCSSVariable('--chart-1')})`,
+    chart2: `hsl(${getCSSVariable('--chart-2')})`,
+    chart3: `hsl(${getCSSVariable('--chart-3')})`,
+    chart4: `hsl(${getCSSVariable('--chart-4')})`,
+    chart5: `hsl(${getCSSVariable('--chart-5')})`,
+    mutedForeground: `hsl(${getCSSVariable('--muted-foreground')})`,
+    card: `hsl(${getCSSVariable('--card')})`,
+    foreground: `hsl(${getCSSVariable('--foreground')})`,
+    border: `hsl(${getCSSVariable('--border')})`,
+  }))
 
   const categoryTrends = [
     { category: "Groceries", last_month: 145, this_month: 152, change: 5 },
@@ -32,28 +42,28 @@ export default function InsightsPage() {
     { category: "Fitness", last_month: 179, this_month: 179, change: 0 },
   ]
 
-  const pieChartData = {
+  const pieChartData = createMemo(() => ({
     labels: mockCategorySummary.map(c => c.name),
     datasets: [{
       data: mockCategorySummary.map(c => c.total),
       backgroundColor: [
-        chartColors.chart1,
-        chartColors.chart2,
-        chartColors.chart3,
-        chartColors.chart4,
-        chartColors.chart5,
-        chartColors.chart1,
-        chartColors.chart2,
-        chartColors.chart3,
-        chartColors.chart4,
-        chartColors.chart5,
+        chartColors().chart1,
+        chartColors().chart2,
+        chartColors().chart3,
+        chartColors().chart4,
+        chartColors().chart5,
+        chartColors().chart1,
+        chartColors().chart2,
+        chartColors().chart3,
+        chartColors().chart4,
+        chartColors().chart5,
       ],
       borderWidth: 2,
-      borderColor: 'hsl(var(--card))',
+      borderColor: chartColors().card,
     }]
-  }
+  }))
 
-  const pieChartOptions = {
+  const pieChartOptions = createMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -61,7 +71,7 @@ export default function InsightsPage() {
         display: true,
         position: 'bottom' as const,
         labels: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           usePointStyle: true,
           padding: 8,
           font: {
@@ -70,10 +80,10 @@ export default function InsightsPage() {
         }
       },
       tooltip: {
-        backgroundColor: 'hsl(var(--card))',
-        titleColor: 'hsl(var(--foreground))',
-        bodyColor: 'hsl(var(--foreground))',
-        borderColor: 'hsl(var(--border))',
+        backgroundColor: chartColors().card,
+        titleColor: chartColors().foreground,
+        bodyColor: chartColors().foreground,
+        borderColor: chartColors().border,
         borderWidth: 1,
         padding: 12,
         callbacks: {
@@ -83,29 +93,29 @@ export default function InsightsPage() {
         }
       }
     }
-  }
+  }))
 
-  const barChartData = {
+  const barChartData = createMemo(() => ({
     labels: categoryTrends.map(d => d.category),
     datasets: [
       {
         label: 'Last Month',
         data: categoryTrends.map(d => d.last_month),
-        backgroundColor: chartColors.chart2,
+        backgroundColor: chartColors().chart2,
         borderRadius: 8,
         borderSkipped: false,
       },
       {
         label: 'This Month',
         data: categoryTrends.map(d => d.this_month),
-        backgroundColor: chartColors.chart1,
+        backgroundColor: chartColors().chart1,
         borderRadius: 8,
         borderSkipped: false,
       }
     ]
-  }
+  }))
 
-  const barChartOptions = {
+  const barChartOptions = createMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -113,16 +123,16 @@ export default function InsightsPage() {
         display: true,
         position: 'bottom' as const,
         labels: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           usePointStyle: true,
           padding: 15
         }
       },
       tooltip: {
-        backgroundColor: 'hsl(var(--card))',
-        titleColor: 'hsl(var(--foreground))',
-        bodyColor: 'hsl(var(--foreground))',
-        borderColor: 'hsl(var(--border))',
+        backgroundColor: chartColors().card,
+        titleColor: chartColors().foreground,
+        bodyColor: chartColors().foreground,
+        borderColor: chartColors().border,
         borderWidth: 1,
         padding: 12,
         displayColors: true,
@@ -132,11 +142,11 @@ export default function InsightsPage() {
       x: {
         grid: {
           display: true,
-          color: 'hsl(var(--border))',
+          color: chartColors().border,
           drawTicks: false,
         },
         ticks: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           padding: 8,
           maxRotation: 45,
           minRotation: 45
@@ -148,11 +158,11 @@ export default function InsightsPage() {
       y: {
         grid: {
           display: true,
-          color: 'hsl(var(--border))',
+          color: chartColors().border,
           drawTicks: false,
         },
         ticks: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           padding: 8
         },
         border: {
@@ -160,7 +170,7 @@ export default function InsightsPage() {
         }
       }
     }
-  }
+  }))
 
   return (
     <section class="p-4">
@@ -190,7 +200,7 @@ export default function InsightsPage() {
           </CardHeader>
           <CardContent>
             <div style={{ height: '300px' }}>
-              <Chart type="pie" data={pieChartData} options={pieChartOptions} />
+              <Chart type="pie" data={pieChartData()} options={pieChartOptions()} />
             </div>
           </CardContent>
         </Card>
@@ -202,7 +212,7 @@ export default function InsightsPage() {
           </CardHeader>
           <CardContent>
             <div style={{ height: '300px' }}>
-              <Chart type="bar" data={barChartData} options={barChartOptions} />
+              <Chart type="bar" data={barChartData()} options={barChartOptions()} />
             </div>
           </CardContent>
         </Card>

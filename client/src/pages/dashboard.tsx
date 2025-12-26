@@ -4,11 +4,16 @@ import TrendingUp from "lucide-solid/icons/trending-up"
 import ArrowUpRight from "lucide-solid/icons/arrow-up-right"
 import ArrowDownLeft from "lucide-solid/icons/arrow-down-left"
 import { useActiveTitle } from "@/contexts/config"
-import { type JSXElement, createSignal, onMount, onCleanup } from "solid-js"
+import { type JSXElement, createSignal, onMount, onCleanup, createMemo } from "solid-js"
 import { StaticMetadata } from "@/contexts/metadata"
 import { Title } from "@/components/layout/title"
 import { Chart as ChartJS, registerables } from 'chart.js'
 import { DefaultChart as Chart } from 'solid-chartjs'
+
+// Helper function to get computed CSS variable
+function getCSSVariable(variable: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
+}
 
 export default function Dashboard() {
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
@@ -35,27 +40,38 @@ export default function Dashboard() {
   const totalExpenses = currentMonth.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)
   const netIncome = totalIncome - totalExpenses
 
-  const barChartData = {
+  // Compute colors from CSS variables
+  const chartColors = createMemo(() => ({
+    chart1: `hsl(${getCSSVariable('--chart-1')})`,
+    chart2: `hsl(${getCSSVariable('--chart-2')})`,
+    chart3: `hsl(${getCSSVariable('--chart-3')})`,
+    mutedForeground: `hsl(${getCSSVariable('--muted-foreground')})`,
+    card: `hsl(${getCSSVariable('--card')})`,
+    foreground: `hsl(${getCSSVariable('--foreground')})`,
+    border: `hsl(${getCSSVariable('--border')})`,
+  }))
+
+  const barChartData = createMemo(() => ({
     labels: monthlyData.map(d => d.month),
     datasets: [
       {
         label: 'Income',
         data: monthlyData.map(d => d.income),
-        backgroundColor: 'hsl(var(--color-chart-1))',
+        backgroundColor: chartColors().chart1,
         borderRadius: 8,
         borderSkipped: false,
       },
       {
         label: 'Expenses',
         data: monthlyData.map(d => d.expenses),
-        backgroundColor: 'hsl(var(--color-chart-3))',
+        backgroundColor: chartColors().chart3,
         borderRadius: 8,
         borderSkipped: false,
       }
     ]
-  }
+  }))
 
-  const barChartOptions = {
+  const barChartOptions = createMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -63,16 +79,16 @@ export default function Dashboard() {
         display: true,
         position: 'bottom' as const,
         labels: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           usePointStyle: true,
           padding: 15
         }
       },
       tooltip: {
-        backgroundColor: 'hsl(var(--card))',
-        titleColor: 'hsl(var(--foreground))',
-        bodyColor: 'hsl(var(--foreground))',
-        borderColor: 'hsl(var(--border))',
+        backgroundColor: chartColors().card,
+        titleColor: chartColors().foreground,
+        bodyColor: chartColors().foreground,
+        borderColor: chartColors().border,
         borderWidth: 1,
         padding: 12,
         displayColors: true,
@@ -82,11 +98,11 @@ export default function Dashboard() {
       x: {
         grid: {
           display: true,
-          color: 'hsl(var(--border))',
+          color: chartColors().border,
           drawTicks: false,
         },
         ticks: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           padding: 8
         },
         border: {
@@ -96,11 +112,11 @@ export default function Dashboard() {
       y: {
         grid: {
           display: true,
-          color: 'hsl(var(--border))',
+          color: chartColors().border,
           drawTicks: false,
         },
         ticks: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           padding: 8
         },
         border: {
@@ -108,25 +124,25 @@ export default function Dashboard() {
         }
       }
     }
-  }
+  }))
 
-  const pieChartData = {
+  const pieChartData = createMemo(() => ({
     labels: mockCategorySummary.slice(0, 5).map(c => c.name),
     datasets: [{
       data: mockCategorySummary.slice(0, 5).map(c => c.total),
       backgroundColor: [
-        'hsl(var(--color-chart-1))',
-        'hsl(var(--color-chart-2))',
-        'hsl(var(--color-chart-3))',
-        'hsl(var(--color-chart-1))',
-        'hsl(var(--color-chart-2))',
+        chartColors().chart1,
+        chartColors().chart2,
+        chartColors().chart3,
+        chartColors().chart1,
+        chartColors().chart2,
       ],
       borderWidth: 2,
-      borderColor: 'hsl(var(--card))',
+      borderColor: chartColors().card,
     }]
-  }
+  }))
 
-  const pieChartOptions = {
+  const pieChartOptions = createMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -134,7 +150,7 @@ export default function Dashboard() {
         display: true,
         position: 'bottom' as const,
         labels: {
-          color: 'hsl(var(--muted-foreground))',
+          color: chartColors().mutedForeground,
           usePointStyle: true,
           padding: 10,
           font: {
@@ -143,10 +159,10 @@ export default function Dashboard() {
         }
       },
       tooltip: {
-        backgroundColor: 'hsl(var(--card))',
-        titleColor: 'hsl(var(--foreground))',
-        bodyColor: 'hsl(var(--foreground))',
-        borderColor: 'hsl(var(--border))',
+        backgroundColor: chartColors().card,
+        titleColor: chartColors().foreground,
+        bodyColor: chartColors().foreground,
+        borderColor: chartColors().border,
         borderWidth: 1,
         padding: 12,
         callbacks: {
@@ -156,7 +172,7 @@ export default function Dashboard() {
         }
       }
     }
-  }
+  }))
 
   return (
     <section class="p-4">
@@ -195,7 +211,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div style={{ height: '300px' }}>
-              <Chart type="bar" data={barChartData} options={barChartOptions} />
+              <Chart type="bar" data={barChartData()} options={barChartOptions()} />
             </div>
           </CardContent>
         </Card>
@@ -207,7 +223,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div style={{ height: '300px' }}>
-              <Chart type="pie" data={pieChartData} options={pieChartOptions} />
+              <Chart type="pie" data={pieChartData()} options={pieChartOptions()} />
             </div>
           </CardContent>
         </Card>
