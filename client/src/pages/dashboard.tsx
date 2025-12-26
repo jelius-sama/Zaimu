@@ -4,11 +4,12 @@ import TrendingUp from "lucide-solid/icons/trending-up"
 import ArrowUpRight from "lucide-solid/icons/arrow-up-right"
 import ArrowDownLeft from "lucide-solid/icons/arrow-down-left"
 import { useActiveTitle } from "@/contexts/config"
-import { type JSXElement, createSignal, onMount, onCleanup, createMemo } from "solid-js"
+import { type JSXElement, onMount, createMemo } from "solid-js"
 import { StaticMetadata } from "@/contexts/metadata"
 import { Title } from "@/components/layout/title"
 import { Chart as ChartJS, registerables } from 'chart.js'
 import { DefaultChart as Chart } from 'solid-chartjs'
+import { appState } from "@/contexts/app"
 
 // Helper function to get computed CSS variable
 function getCSSVariable(variable: string): string {
@@ -18,27 +19,14 @@ function getCSSVariable(variable: string): string {
 export default function Dashboard() {
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
 
-  let el!: HTMLDivElement;
-
-  const [size, setSize] = createSignal({ width: 0, height: 0 });
-
-  onMount(() => {
-    ChartJS.register(...registerables)
-
-    const ro = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      setSize({ width, height });
-    });
-
-    ro.observe(el);
-
-    onCleanup(() => ro.disconnect());
-  });
-
   const currentMonth = mockTransactions.filter((t) => t.date.getMonth() === new Date().getMonth())
   const totalIncome = currentMonth.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
   const totalExpenses = currentMonth.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)
   const netIncome = totalIncome - totalExpenses
+
+  onMount(() => {
+    ChartJS.register(...registerables)
+  });
 
   // Compute colors from CSS variables
   const chartColors = createMemo(() => ({
@@ -230,12 +218,12 @@ export default function Dashboard() {
       </div>
 
       <Card>
-        <CardHeader ref={el}>
+        <CardHeader>
           <CardTitle>Recent Transactions</CardTitle>
           <CardDescription>Your 5 most recent transactions</CardDescription>
         </CardHeader>
-        <CardContent class="overflow-x-scroll">
-          <div style={{ width: `${size().width}px` }}>
+        <CardContent class="w-full overflow-x-scroll">
+          <div style={{ width: `calc(${appState.screen.width}px - ${1 * 2}rem - ${1.5 * 2}rem - ${1 * 2}px)` }}>
             <table>
               <thead>
                 <tr>

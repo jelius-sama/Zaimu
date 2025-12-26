@@ -15,6 +15,7 @@ import {
     useSidebar,
     useIsMobile
 } from "@/components/ui/sidebar"
+import { setUsableScreenSize } from "@/contexts/app"
 
 const ITEMS = [
     {
@@ -40,6 +41,8 @@ const ITEMS = [
 ]
 
 export function AppSidebar() {
+    // INFO: Setting usable screen size should preferably done in `main.tsx` but since `useSidebar` must be within `Sidebar` we keep it here.
+    setUsableScreenSize()
     const location = useLocation()
     const sidebarCtx = useSidebar()
     const isMobile = useIsMobile()

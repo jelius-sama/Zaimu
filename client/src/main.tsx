@@ -10,7 +10,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { ColorModeProvider, ColorModeScript, createLocalStorageManager } from "@kobalte/core"
 import { MetaProvider } from "@solidjs/meta"
-import { appState } from './contexts/app';
+import { appState } from '@/contexts/app';
 
 const queryClient = new QueryClient()
 
@@ -61,11 +61,6 @@ const App = (props: RouteSectionProps) => {
 
     mo.observe(document.body, { childList: true, subtree: true });
   });
-
-  createEffect(() => {
-    console.log(`[DEBUG] ro: ${ro}`)
-    console.log(`[DEBUG] sidebarContentHeight: ${sidebarContentHeight()}`)
-  })
 
   return (
     <SidebarProvider>
