@@ -4,9 +4,22 @@ import TrendingUp from "lucide-solid/icons/trending-up"
 import ArrowUpRight from "lucide-solid/icons/arrow-up-right"
 import ArrowDownLeft from "lucide-solid/icons/arrow-down-left"
 import { useActiveTitle } from "@/contexts/config"
-import { type JSXElement, For, createSignal, onMount, onCleanup } from "solid-js"
+import { type JSXElement, createSignal, onMount, onCleanup } from "solid-js"
 import { StaticMetadata } from "@/contexts/metadata"
 import { Title } from "@/components/layout/title"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts"
 
 export default function Dashboard() {
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
@@ -74,7 +87,19 @@ export default function Dashboard() {
             <CardDescription>Monthly comparison over the last 5 months</CardDescription>
           </CardHeader>
           <CardContent>
-            <BarChartComponent data={monthlyData} chartColors={chartColors} />
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
+                <YAxis stroke="var(--color-muted-foreground)" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "var(--color-card)", border: "1px solid var(--color-border)" }}
+                />
+                <Legend />
+                <Bar dataKey="income" fill={chartColors.chart1} name="Income" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="expenses" fill={chartColors.chart3} name="Expenses" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
@@ -84,7 +109,24 @@ export default function Dashboard() {
             <CardDescription>Top spending categories this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <PieChartComponent data={mockCategorySummary.slice(0, 5)} chartColors={chartColors} />
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={mockCategorySummary.slice(0, 5)}
+                  dataKey="total"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {mockCategorySummary.slice(0, 5).map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={Object.values(chartColors)[index % 3]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: any) => formatCurrency(value as number)} />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
@@ -163,188 +205,5 @@ function MetricCard({
         </p>
       </CardContent>
     </Card>
-  )
-}
-
-function BarChartComponent(props: { data: any[]; chartColors: any }) {
-  const maxValue = () => Math.max(...props.data.flatMap((d: any) => [d.income, d.expenses]))
-  const chartHeight = 300
-  const padding = { top: 20, right: 20, bottom: 50, left: 60 }
-  const innerHeight = chartHeight - padding.top - padding.bottom
-  const barWidth = 40
-
-  return (
-    <div style={{ width: '100%', height: '300px', position: 'relative' }}>
-      <svg width="100%" height="100%" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <pattern id="grid" width="100" height="50" patternUnits="userSpaceOnUse">
-            <path d="M 100 0 L 0 0 0 50" fill="none" stroke="hsl(var(--border))" stroke-width="0.5" stroke-dasharray="3 3" />
-          </pattern>
-        </defs>
-
-        <rect x={padding.left} y={padding.top} width={600 - padding.left - padding.right} height={innerHeight} fill="url(#grid)" />
-
-        <For each={Array.from({ length: 6 })}>
-          {(_, i) => {
-            const y = padding.top + innerHeight * i() / 5
-            const value = Math.round(maxValue() * (1 - i() / 5))
-            return (
-              <text
-                x={padding.left - 10}
-                y={y + 5}
-                text-anchor="end"
-                font-size="12"
-                fill="hsl(var(--muted-foreground))"
-              >
-                {value}
-              </text>
-            )
-          }}
-        </For>
-
-        <For each={props.data}>
-          {(item: any, i) => {
-            const barGroupWidth = (600 - padding.left - padding.right) / props.data.length
-            const x = padding.left + barGroupWidth * i() + barGroupWidth / 2 - barWidth - 5
-            const incomeHeight = (innerHeight * item.income) / maxValue()
-            const expensesHeight = (innerHeight * item.expenses) / maxValue()
-
-            return (
-              <g>
-                <rect
-                  x={x}
-                  y={padding.top + innerHeight - incomeHeight}
-                  width={barWidth}
-                  height={incomeHeight}
-                  fill={props.chartColors.chart1}
-                  rx="8"
-                  ry="8"
-                  style="clip-path: inset(0 0 0 0 round 8px 8px 0 0)"
-                />
-                <rect
-                  x={x + barWidth + 10}
-                  y={padding.top + innerHeight - expensesHeight}
-                  width={barWidth}
-                  height={expensesHeight}
-                  fill={props.chartColors.chart3}
-                  rx="8"
-                  ry="8"
-                  style="clip-path: inset(0 0 0 0 round 8px 8px 0 0)"
-                />
-                <text
-                  x={x + barWidth + 5}
-                  y={chartHeight - padding.bottom + 20}
-                  text-anchor="middle"
-                  font-size="12"
-                  fill="hsl(var(--muted-foreground))"
-                >
-                  {item.month}
-                </text>
-              </g>
-            )
-          }}
-        </For>
-
-        <line
-          x1={padding.left}
-          y1={padding.top + innerHeight}
-          x2={600 - padding.right}
-          y2={padding.top + innerHeight}
-          stroke="hsl(var(--muted-foreground))"
-          stroke-width="1"
-        />
-        <line
-          x1={padding.left}
-          y1={padding.top}
-          x2={padding.left}
-          y2={padding.top + innerHeight}
-          stroke="hsl(var(--muted-foreground))"
-          stroke-width="1"
-        />
-      </svg>
-
-      <div style={{ display: 'flex', 'justify-content': 'center', gap: '20px', 'margin-top': '10px' }}>
-        <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
-          <div style={{ width: '12px', height: '12px', 'background-color': props.chartColors.chart1, 'border-radius': '2px' }} />
-          <span style={{ 'font-size': '12px', color: 'hsl(var(--muted-foreground))' }}>Income</span>
-        </div>
-        <div style={{ display: 'flex', 'align-items': 'center', gap: '8px' }}>
-          <div style={{ width: '12px', height: '12px', 'background-color': props.chartColors.chart3, 'border-radius': '2px' }} />
-          <span style={{ 'font-size': '12px', color: 'hsl(var(--muted-foreground))' }}>Expenses</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function PieChartComponent(props: { data: any[]; chartColors: any }) {
-  const total = () => props.data.reduce((sum: number, item: any) => sum + item.total, 0)
-  const radius = 100
-  const centerX = 200
-  const centerY = 150
-
-  const getCoordinatesForPercent = (percent: number) => {
-    const x = Math.cos(2 * Math.PI * percent)
-    const y = Math.sin(2 * Math.PI * percent)
-    return [x, y]
-  }
-
-  let cumulativePercent = 0
-  const slices = props.data.map((item: any, index: number) => {
-    const percent = item.total / total()
-    const [startX, startY] = getCoordinatesForPercent(cumulativePercent)
-    const startCumulative = cumulativePercent
-    cumulativePercent += percent
-    const [endX, endY] = getCoordinatesForPercent(cumulativePercent)
-    const largeArcFlag = percent > 0.5 ? 1 : 0
-
-    const midPercent = startCumulative + percent / 2
-    const [labelX, labelY] = getCoordinatesForPercent(midPercent)
-    const labelPosX = centerX + labelX * (radius + 30)
-    const labelPosY = centerY + labelY * (radius + 30)
-
-    const pathData = [
-      `M ${centerX + startX * radius} ${centerY + startY * radius}`,
-      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${centerX + endX * radius} ${centerY + endY * radius}`,
-      `L ${centerX} ${centerY}`,
-    ].join(' ')
-
-    return {
-      path: pathData,
-      color: Object.values(props.chartColors)[index % 3] as string,
-      name: item.name,
-      value: item.total,
-      labelX: labelPosX,
-      labelY: labelPosY,
-    }
-  })
-
-  return (
-    <div style={{ width: '100%', height: '300px', position: 'relative' }}>
-      <svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet">
-        <For each={slices}>
-          {(slice) => (
-            <>
-              <path
-                d={slice.path}
-                fill={slice.color}
-                stroke="hsl(var(--card))"
-                stroke-width="2"
-              />
-              <text
-                x={slice.labelX}
-                y={slice.labelY}
-                text-anchor="middle"
-                font-size="11"
-                fill="hsl(var(--foreground))"
-                font-weight="500"
-              >
-                {slice.name}
-              </text>
-            </>
-          )}
-        </For>
-      </svg>
-    </div>
   )
 }
