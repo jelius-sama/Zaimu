@@ -7,40 +7,19 @@ import { useActiveTitle } from "@/contexts/config"
 import { type JSXElement, createSignal, onMount, onCleanup } from "solid-js"
 import { StaticMetadata } from "@/contexts/metadata"
 import { Title } from "@/components/layout/title"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts"
+import { Chart as ChartJS, registerables } from 'chart.js'
+import { DefaultChart as Chart } from 'solid-chartjs'
 
 export default function Dashboard() {
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
-  const currentMonth = mockTransactions.filter((t) => t.date.getMonth() === new Date().getMonth())
 
-  const totalIncome = currentMonth.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
-
-  const totalExpenses = currentMonth.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)
-
-  const netIncome = totalIncome - totalExpenses
-
-  const chartColors = {
-    chart1: "hsl(var(--color-chart-1))",
-    chart2: "hsl(var(--color-chart-2))",
-    chart3: "hsl(var(--color-chart-3))",
-  }
   let el!: HTMLDivElement;
 
   const [size, setSize] = createSignal({ width: 0, height: 0 });
 
   onMount(() => {
+    ChartJS.register(...registerables)
+
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       setSize({ width, height });
@@ -50,6 +29,134 @@ export default function Dashboard() {
 
     onCleanup(() => ro.disconnect());
   });
+
+  const currentMonth = mockTransactions.filter((t) => t.date.getMonth() === new Date().getMonth())
+  const totalIncome = currentMonth.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
+  const totalExpenses = currentMonth.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)
+  const netIncome = totalIncome - totalExpenses
+
+  const barChartData = {
+    labels: monthlyData.map(d => d.month),
+    datasets: [
+      {
+        label: 'Income',
+        data: monthlyData.map(d => d.income),
+        backgroundColor: 'hsl(var(--color-chart-1))',
+        borderRadius: 8,
+        borderSkipped: false,
+      },
+      {
+        label: 'Expenses',
+        data: monthlyData.map(d => d.expenses),
+        backgroundColor: 'hsl(var(--color-chart-3))',
+        borderRadius: 8,
+        borderSkipped: false,
+      }
+    ]
+  }
+
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+        labels: {
+          color: 'hsl(var(--muted-foreground))',
+          usePointStyle: true,
+          padding: 15
+        }
+      },
+      tooltip: {
+        backgroundColor: 'hsl(var(--card))',
+        titleColor: 'hsl(var(--foreground))',
+        bodyColor: 'hsl(var(--foreground))',
+        borderColor: 'hsl(var(--border))',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: true,
+          color: 'hsl(var(--border))',
+          drawTicks: false,
+        },
+        ticks: {
+          color: 'hsl(var(--muted-foreground))',
+          padding: 8
+        },
+        border: {
+          display: false
+        }
+      },
+      y: {
+        grid: {
+          display: true,
+          color: 'hsl(var(--border))',
+          drawTicks: false,
+        },
+        ticks: {
+          color: 'hsl(var(--muted-foreground))',
+          padding: 8
+        },
+        border: {
+          display: false
+        }
+      }
+    }
+  }
+
+  const pieChartData = {
+    labels: mockCategorySummary.slice(0, 5).map(c => c.name),
+    datasets: [{
+      data: mockCategorySummary.slice(0, 5).map(c => c.total),
+      backgroundColor: [
+        'hsl(var(--color-chart-1))',
+        'hsl(var(--color-chart-2))',
+        'hsl(var(--color-chart-3))',
+        'hsl(var(--color-chart-1))',
+        'hsl(var(--color-chart-2))',
+      ],
+      borderWidth: 2,
+      borderColor: 'hsl(var(--card))',
+    }]
+  }
+
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+        labels: {
+          color: 'hsl(var(--muted-foreground))',
+          usePointStyle: true,
+          padding: 10,
+          font: {
+            size: 11
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'hsl(var(--card))',
+        titleColor: 'hsl(var(--foreground))',
+        bodyColor: 'hsl(var(--foreground))',
+        borderColor: 'hsl(var(--border))',
+        borderWidth: 1,
+        padding: 12,
+        callbacks: {
+          label: function(context: any) {
+            return ` ${context.label}: ${formatCurrency(context.parsed)}`
+          }
+        }
+      }
+    }
+  }
 
   return (
     <section class="p-4">
@@ -87,19 +194,9 @@ export default function Dashboard() {
             <CardDescription>Monthly comparison over the last 5 months</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
-                <YAxis stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "var(--color-card)", border: "1px solid var(--color-border)" }}
-                />
-                <Legend />
-                <Bar dataKey="income" fill={chartColors.chart1} name="Income" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="expenses" fill={chartColors.chart3} name="Expenses" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ height: '300px' }}>
+              <Chart type="bar" data={barChartData} options={barChartOptions} />
+            </div>
           </CardContent>
         </Card>
 
@@ -109,24 +206,9 @@ export default function Dashboard() {
             <CardDescription>Top spending categories this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={mockCategorySummary.slice(0, 5)}
-                  dataKey="total"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {mockCategorySummary.slice(0, 5).map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={Object.values(chartColors)[index % 3]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: any) => formatCurrency(value as number)} />
-              </PieChart>
-            </ResponsiveContainer>
+            <div style={{ height: '300px' }}>
+              <Chart type="pie" data={pieChartData} options={pieChartOptions} />
+            </div>
           </CardContent>
         </Card>
       </div>

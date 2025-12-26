@@ -3,22 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useActiveTitle } from "@/contexts/config"
 import { StaticMetadata } from "@/contexts/metadata"
 import { mockCategorySummary, formatCurrency } from "@/lib/mock-data"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts"
+import { Chart as ChartJS, registerables } from 'chart.js'
+import { DefaultChart as Chart } from 'solid-chartjs'
+import { onMount } from "solid-js"
 
 export default function InsightsPage() {
   useActiveTitle({ title: "Insights", description: "Deep dive into your spending patterns and trends." })
+
+  onMount(() => {
+    ChartJS.register(...registerables)
+  })
 
   const topCategories = mockCategorySummary.slice(0, 5)
 
@@ -37,6 +31,136 @@ export default function InsightsPage() {
     { category: "Transport", last_month: 156, this_month: 0, change: -100 },
     { category: "Fitness", last_month: 179, this_month: 179, change: 0 },
   ]
+
+  const pieChartData = {
+    labels: mockCategorySummary.map(c => c.name),
+    datasets: [{
+      data: mockCategorySummary.map(c => c.total),
+      backgroundColor: [
+        chartColors.chart1,
+        chartColors.chart2,
+        chartColors.chart3,
+        chartColors.chart4,
+        chartColors.chart5,
+        chartColors.chart1,
+        chartColors.chart2,
+        chartColors.chart3,
+        chartColors.chart4,
+        chartColors.chart5,
+      ],
+      borderWidth: 2,
+      borderColor: 'hsl(var(--card))',
+    }]
+  }
+
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+        labels: {
+          color: 'hsl(var(--muted-foreground))',
+          usePointStyle: true,
+          padding: 8,
+          font: {
+            size: 10
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'hsl(var(--card))',
+        titleColor: 'hsl(var(--foreground))',
+        bodyColor: 'hsl(var(--foreground))',
+        borderColor: 'hsl(var(--border))',
+        borderWidth: 1,
+        padding: 12,
+        callbacks: {
+          label: function(context: any) {
+            return ` ${context.label}: ${formatCurrency(context.parsed)}`
+          }
+        }
+      }
+    }
+  }
+
+  const barChartData = {
+    labels: categoryTrends.map(d => d.category),
+    datasets: [
+      {
+        label: 'Last Month',
+        data: categoryTrends.map(d => d.last_month),
+        backgroundColor: chartColors.chart2,
+        borderRadius: 8,
+        borderSkipped: false,
+      },
+      {
+        label: 'This Month',
+        data: categoryTrends.map(d => d.this_month),
+        backgroundColor: chartColors.chart1,
+        borderRadius: 8,
+        borderSkipped: false,
+      }
+    ]
+  }
+
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+        labels: {
+          color: 'hsl(var(--muted-foreground))',
+          usePointStyle: true,
+          padding: 15
+        }
+      },
+      tooltip: {
+        backgroundColor: 'hsl(var(--card))',
+        titleColor: 'hsl(var(--foreground))',
+        bodyColor: 'hsl(var(--foreground))',
+        borderColor: 'hsl(var(--border))',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: true,
+          color: 'hsl(var(--border))',
+          drawTicks: false,
+        },
+        ticks: {
+          color: 'hsl(var(--muted-foreground))',
+          padding: 8,
+          maxRotation: 45,
+          minRotation: 45
+        },
+        border: {
+          display: false
+        }
+      },
+      y: {
+        grid: {
+          display: true,
+          color: 'hsl(var(--border))',
+          drawTicks: false,
+        },
+        ticks: {
+          color: 'hsl(var(--muted-foreground))',
+          padding: 8
+        },
+        border: {
+          display: false
+        }
+      }
+    }
+  }
 
   return (
     <section class="p-4">
@@ -65,24 +189,9 @@ export default function InsightsPage() {
             <CardDescription>All expense categories</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={mockCategorySummary}
-                  dataKey="total"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {mockCategorySummary.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={Object.values(chartColors)[index % 5]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: any) => formatCurrency(value as number)} />
-              </PieChart>
-            </ResponsiveContainer>
+            <div style={{ height: '300px' }}>
+              <Chart type="pie" data={pieChartData} options={pieChartOptions} />
+            </div>
           </CardContent>
         </Card>
 
@@ -92,25 +201,9 @@ export default function InsightsPage() {
             <CardDescription>Last month vs this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={categoryTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis
-                  dataKey="category"
-                  stroke="var(--color-muted-foreground)"
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "var(--color-card)", border: "1px solid var(--color-border)" }}
-                />
-                <Legend />
-                <Bar dataKey="last_month" fill={chartColors.chart2} name="Last Month" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="this_month" fill={chartColors.chart1} name="This Month" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ height: '300px' }}>
+              <Chart type="bar" data={barChartData} options={barChartOptions} />
+            </div>
           </CardContent>
         </Card>
       </div>
