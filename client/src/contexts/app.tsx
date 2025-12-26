@@ -1,4 +1,4 @@
-import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_ICON, SIDEBAR_WIDTH_MOBILE, useSidebar } from "@/components/ui/sidebar";
+import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_MOBILE, useSidebar } from "@/components/ui/sidebar";
 import { createRenderEffect, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 
