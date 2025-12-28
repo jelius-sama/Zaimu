@@ -23,10 +23,29 @@ CREATE INDEX idx_transactions_date
     ON transactions(date);
 
 CREATE INDEX idx_transactions_category
-    ON transactions(category);
+    ON transactions(date, category);
 
 CREATE INDEX idx_transaction_tags_tag
     ON transaction_tags(tag);
+
+WITH month_tx AS (
+    SELECT amount, category
+    FROM transactions
+    WHERE date >= :month_start
+      AND date <  :month_end
+),
+totals AS (
+    SELECT SUM(amount) AS grand_total
+    FROM month_tx
+)
+SELECT
+    m.category        AS name,
+    SUM(m.amount)     AS total,
+    COUNT(*)          AS count,
+    (SUM(m.amount) / t.grand_total) * 100.0 AS percentage
+FROM month_tx m, totals t
+GROUP BY m.category
+ORDER BY total DESC;
 
 CREATE TABLE monthly_data (
     id        TEXT PRIMARY KEY,

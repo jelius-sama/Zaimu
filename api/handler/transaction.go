@@ -6,12 +6,28 @@ import (
     "net/http"
     "time"
 
+    "fmt"
     "github.com/google/uuid"
     "zaimu/db"
     "zaimu/types"
 )
 
 func GetTransactions(w http.ResponseWriter, r *http.Request) {
+    page := 1
+    if p := r.URL.Query().Get("page"); p != "" {
+        fmt.Sscan(p, &page)
+    }
+    pageSize := 20
+    offset := (page - 1) * pageSize
+
+    var total int
+    if err := db.Conn.QueryRow(`
+        SELECT COUNT(*) FROM transactions
+    `).Scan(&total); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
     rows, err := db.Conn.Query(`
         SELECT
             t.id,
@@ -27,7 +43,8 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
         LEFT JOIN transaction_tags tt
             ON tt.transaction_id = t.id
         ORDER BY t.date DESC
-    `)
+        LIMIT ? OFFSET ?
+    `, pageSize, offset)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -38,39 +55,28 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
         tx   types.Transaction
         tags []string
     }
-
-    m := make(map[string]*agg)
+    m := map[string]*agg{}
 
     for rows.Next() {
         var (
             idStr string
             date  int64
             tag   sql.NullString
+            tx    types.Transaction
         )
 
-        var tx types.Transaction
-
         if err := rows.Scan(
-            &idStr,
-            &date,
-            &tx.Merchant,
-            &tx.Category,
-            &tx.Description,
-            &tx.Amount,
-            &tx.Type,
-            &tx.Method,
+            &idStr, &date,
+            &tx.Merchant, &tx.Category,
+            &tx.Description, &tx.Amount,
+            &tx.Type, &tx.Method,
             &tag,
         ); err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
 
-        id, err := uuid.Parse(idStr)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-
+        id, _ := uuid.Parse(idStr)
         tx.ID = id
         tx.Date = time.Unix(date, 0)
 
@@ -79,19 +85,27 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
             entry = &agg{tx: tx}
             m[idStr] = entry
         }
-
         if tag.Valid {
             entry.tags = append(entry.tags, tag.String)
         }
     }
 
-    out := make([]types.Transaction, 0, len(m))
+    var data []types.Transaction
     for _, v := range m {
         v.tx.Tags = v.tags
-        out = append(out, v.tx)
+        data = append(data, v.tx)
+    }
+
+    resp := map[string]any{
+        "data": data,
+        "metadata": Metadata{
+            Page:        page,
+            TotalItems:  total,
+            HasNextPage: (page * 10) < total,
+        },
     }
 
     w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(out)
+    json.NewEncoder(w).Encode(resp)
 }
 

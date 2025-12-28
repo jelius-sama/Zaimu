@@ -5,13 +5,31 @@ import (
     "net/http"
     "time"
 
+    "fmt"
     "zaimu/db"
     "zaimu/types"
 )
 
 func GetCategorySummary(w http.ResponseWriter, r *http.Request) {
-    now := time.Now().UTC()
-    start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+    var (
+        year  int
+        month int
+    )
+
+    if y := r.URL.Query().Get("year"); y != "" {
+        fmt.Sscan(y, &year)
+    }
+    if m := r.URL.Query().Get("month"); m != "" {
+        fmt.Sscan(m, &month)
+    }
+
+    // basic validation
+    if year == 0 || month < 1 || month > 12 {
+        http.Error(w, "invalid year or month", http.StatusBadRequest)
+        return
+    }
+
+    start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
     end := start.AddDate(0, 1, 0)
 
     rows, err := db.Conn.Query(`
@@ -33,7 +51,7 @@ func GetCategorySummary(w http.ResponseWriter, r *http.Request) {
     }
     defer rows.Close()
 
-    var out []types.CategorySummary
+    var data []types.CategorySummary
 
     for rows.Next() {
         var r types.CategorySummary
@@ -46,10 +64,19 @@ func GetCategorySummary(w http.ResponseWriter, r *http.Request) {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
-        out = append(out, r)
+        data = append(data, r)
+    }
+
+    resp := map[string]any{
+        "data": data,
+        "metadata": Metadata{
+            Page:        1,
+            TotalItems:  len(data),
+            HasNextPage: false,
+        },
     }
 
     w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(out)
+    json.NewEncoder(w).Encode(resp)
 }
 
