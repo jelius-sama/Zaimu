@@ -45,7 +45,6 @@ const App = (props: RouteSectionProps) => {
     if (!el) return false;
 
     ro = new ResizeObserver(([e]) => {
-      console.log("[DEBUG]: raw height:", e.contentRect.height)
       setSidebarContentHeight(e.contentRect.height);
     });
     ro.observe(el);

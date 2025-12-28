@@ -2,24 +2,44 @@ import { Title } from "@/components/layout/title"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useActiveTitle } from "@/contexts/config"
 import { StaticMetadata } from "@/contexts/metadata"
-import { mockCategorySummary, formatCurrency } from "@/lib/mock-data"
+import { useCategorySummary } from "@/lib/data"
+import { formatCurrency } from "@/lib/utils"
 import { Chart as ChartJS, registerables } from 'chart.js'
 import { DefaultChart as Chart } from 'solid-chartjs'
-import { onMount, createMemo } from "solid-js"
+import { onMount, createMemo, Show } from "solid-js"
+import assert from "assert"
 
 // Helper function to get computed CSS variable
 function getCSSVariable(variable: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
 }
 
-export default function InsightsPage() {
+export default function Insights() {
+  const date = new Date()
   useActiveTitle({ title: "Insights", description: "Deep dive into your spending patterns and trends." })
+  const categorySummary = useCategorySummary(date.getUTCFullYear(), date.getUTCMonth())
 
+  return (
+    <Show
+      when={!categorySummary.isLoading}
+      fallback={<></>}
+    >
+      <InsightsContent
+        categorySummary={categorySummary}
+      />
+    </Show>
+
+  )
+}
+
+function InsightsContent({ categorySummary }: { categorySummary: ReturnType<typeof useCategorySummary> }) {
   onMount(() => {
     ChartJS.register(...registerables)
   })
 
-  const topCategories = mockCategorySummary.slice(0, 5)
+  assert(categorySummary.data != null && categorySummary.data != undefined)
+
+  const topCategories = categorySummary.data.slice(0, 5)
 
   // Compute colors from CSS variables
   const chartColors = createMemo(() => ({
@@ -43,9 +63,9 @@ export default function InsightsPage() {
   ]
 
   const pieChartData = createMemo(() => ({
-    labels: mockCategorySummary.map(c => c.name),
+    labels: categorySummary.data.map(c => c.name),
     datasets: [{
-      data: mockCategorySummary.map(c => c.total),
+      data: categorySummary.data.map(c => c.total),
       backgroundColor: [
         chartColors().chart1,
         chartColors().chart2,
@@ -225,7 +245,7 @@ export default function InsightsPage() {
         </CardHeader>
         <CardContent>
           <div class="space-y-4">
-            {mockCategorySummary.map((category) => (
+            {categorySummary.data.map((category) => (
               <div
                 class="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
               >

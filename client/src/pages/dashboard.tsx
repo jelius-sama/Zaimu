@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { mockTransactions, mockCategorySummary, monthlyData, formatCurrency } from "@/lib/mock-data"
+import { useTransactions, useMonthlyData, useCategorySummary, TTExpense, TTIncome } from "@/lib/data"
+import { formatCurrency } from "@/lib/utils"
 import TrendingUp from "lucide-solid/icons/trending-up"
 import ArrowUpRight from "lucide-solid/icons/arrow-up-right"
 import ArrowDownLeft from "lucide-solid/icons/arrow-down-left"
@@ -10,23 +11,70 @@ import { Title } from "@/components/layout/title"
 import { Chart as ChartJS, registerables } from 'chart.js'
 import { DefaultChart as Chart } from 'solid-chartjs'
 import { appState } from "@/contexts/app"
+import { Show } from "solid-js"
+import assert from "assert"
 
 // Helper function to get computed CSS variable
 function getCSSVariable(variable: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
 }
 
+// TODO: Some static data in the component
 export default function Dashboard() {
+  const date = new Date()
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
+  const transactions = useTransactions()
+  const monthlyData = useMonthlyData(date.getUTCFullYear())
+  const categorySummary = useCategorySummary(date.getUTCFullYear(), date.getUTCMonth())
 
-  const currentMonth = mockTransactions.filter((t) => t.date.getMonth() === new Date().getMonth())
-  const totalIncome = currentMonth.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
-  const totalExpenses = currentMonth.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)
-  const netIncome = totalIncome - totalExpenses
+  return (
+    <Show
+      when={
+        !transactions.isLoading &&
+        !monthlyData.isLoading &&
+        !categorySummary.isLoading
+      }
+      fallback={<></>}
+    >
+      <DashboardContent
+        transactions={transactions}
+        monthlyData={monthlyData}
+        categorySummary={categorySummary}
+      />
+    </Show>
+  )
+}
 
+function DashboardContent({ transactions, monthlyData, categorySummary }: { transactions: ReturnType<typeof useTransactions>, monthlyData: ReturnType<typeof useMonthlyData>, categorySummary: ReturnType<typeof useCategorySummary> }) {
   onMount(() => {
     ChartJS.register(...registerables)
   });
+
+  assert(transactions.data != null && transactions.data != undefined)
+  assert(monthlyData.data != null && monthlyData.data != undefined)
+  assert(categorySummary.data != null && categorySummary.data != undefined)
+
+  const currentMonthTransactions = createMemo(() =>
+    transactions.data.filter(
+      (t) => t.date.getMonth() === new Date().getMonth()
+    )
+  )
+
+  const totalIncome = createMemo(() =>
+    currentMonthTransactions()
+      .filter((t) => t.type === TTIncome)
+      .reduce((sum, t) => sum + t.amount, 0)
+  )
+
+  const totalExpenses = createMemo(() =>
+    currentMonthTransactions()
+      .filter((t) => t.type === TTExpense)
+      .reduce((sum, t) => sum + t.amount, 0)
+  )
+
+  const netIncome = createMemo(() =>
+    totalIncome() - totalExpenses()
+  )
 
   // Compute colors from CSS variables
   const chartColors = createMemo(() => ({
@@ -40,18 +88,18 @@ export default function Dashboard() {
   }))
 
   const barChartData = createMemo(() => ({
-    labels: monthlyData.map(d => d.month),
+    labels: monthlyData.data.map(d => d.month),
     datasets: [
       {
         label: 'Income',
-        data: monthlyData.map(d => d.income),
+        data: monthlyData.data.map(d => d.income),
         backgroundColor: chartColors().chart1,
         borderRadius: 8,
         borderSkipped: false,
       },
       {
         label: 'Expenses',
-        data: monthlyData.map(d => d.expenses),
+        data: monthlyData.data.map(d => d.expenses),
         backgroundColor: chartColors().chart3,
         borderRadius: 8,
         borderSkipped: false,
@@ -115,9 +163,9 @@ export default function Dashboard() {
   }))
 
   const pieChartData = createMemo(() => ({
-    labels: mockCategorySummary.slice(0, 5).map(c => c.name),
+    labels: categorySummary.data.slice(0, 5).map(c => c.name),
     datasets: [{
-      data: mockCategorySummary.slice(0, 5).map(c => c.total),
+      data: categorySummary.data.slice(0, 5).map(c => c.total),
       backgroundColor: [
         chartColors().chart1,
         chartColors().chart2,
@@ -170,23 +218,23 @@ export default function Dashboard() {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <MetricCard
           title="Total Income"
-          value={formatCurrency(totalIncome)}
+          value={formatCurrency(totalIncome())}
           change="+5.2%"
           trend="up"
           icon={<ArrowUpRight class="w-5 h-5 text-green-600" />}
         />
         <MetricCard
           title="Total Expenses"
-          value={formatCurrency(totalExpenses)}
+          value={formatCurrency(totalExpenses())}
           change="-2.1%"
           trend="down"
           icon={<ArrowDownLeft class="w-5 h-5 text-red-600" />}
         />
         <MetricCard
           title="Net Income"
-          value={formatCurrency(netIncome)}
-          change={netIncome > 0 ? "+3.1%" : "-3.1%"}
-          trend={netIncome > 0 ? "up" : "down"}
+          value={formatCurrency(netIncome())}
+          change={netIncome() > 0 ? "+3.1%" : "-3.1%"}
+          trend={netIncome() > 0 ? "up" : "down"}
           icon={<TrendingUp class="w-5 h-5 text-accent" />}
         />
       </div>
@@ -235,7 +283,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {mockTransactions.slice(0, 5).map((txn) => (
+                {transactions.data.slice(0, 5).map((txn) => (
                   <tr>
                     <td class="whitespace-nowrap">{txn.date.toLocaleDateString()}</td>
                     <td class="font-medium">{txn.merchant}</td>

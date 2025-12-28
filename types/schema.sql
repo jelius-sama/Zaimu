@@ -54,9 +54,98 @@ CREATE TABLE monthly_data (
         month IN ('jan','feb','mar','apr','may','jun',
                   'jul','aug','sep','oct','nov','dec')
     ),
-    income    REAL NOT NULL,
-    expenses  REAL NOT NULL
+    income    REAL NOT NULL DEFAULT 0,
+    expenses  REAL NOT NULL DEFAULT 0
 );
 
 CREATE UNIQUE INDEX idx_monthly_year_month
     ON monthly_data(year, month);
+
+
+CREATE TRIGGER trg_tx_after_insert
+AFTER INSERT ON transactions
+BEGIN
+    INSERT INTO monthly_data (id, year, month, income, expenses)
+    VALUES (
+        CAST(strftime('%Y', NEW.date, 'unixepoch') AS INTEGER) || '-' ||
+        lower(substr('janfebmaraprmayjunjulaugsepoctnovdec',
+             (CAST(strftime('%m', NEW.date, 'unixepoch') AS INTEGER) - 1) * 3 + 1, 3)),
+        CAST(strftime('%Y', NEW.date, 'unixepoch') AS INTEGER),
+        lower(substr('janfebmaraprmayjunjulaugsepoctnovdec',
+             (CAST(strftime('%m', NEW.date, 'unixepoch') AS INTEGER) - 1) * 3 + 1, 3)),
+        -- income
+        (
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 1
+              AND date >= strftime('%s', date(NEW.date, 'unixepoch', 'start of month'))
+              AND date <  strftime('%s', date(NEW.date, 'unixepoch', 'start of month', '+1 month'))
+        ),
+        -- expenses
+        (
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 0
+              AND date >= strftime('%s', date(NEW.date, 'unixepoch', 'start of month'))
+              AND date <  strftime('%s', date(NEW.date, 'unixepoch', 'start of month', '+1 month'))
+        )
+    )
+    ON CONFLICT(year, month)
+    DO UPDATE SET
+        income   = excluded.income,
+        expenses = excluded.expenses;
+END;
+
+CREATE TRIGGER trg_tx_after_update
+AFTER UPDATE ON transactions
+BEGIN
+    -- recompute OLD month
+    UPDATE monthly_data
+    SET
+        income = (
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 1
+              AND date >= strftime('%s', date(OLD.date, 'unixepoch', 'start of month'))
+              AND date <  strftime('%s', date(OLD.date, 'unixepoch', 'start of month', '+1 month'))
+        ),
+        expenses = (
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 0
+              AND date >= strftime('%s', date(OLD.date, 'unixepoch', 'start of month'))
+              AND date <  strftime('%s', date(OLD.date, 'unixepoch', 'start of month', '+1 month'))
+        )
+    WHERE year = CAST(strftime('%Y', OLD.date, 'unixepoch') AS INTEGER)
+      AND month = lower(substr('janfebmaraprmayjunjulaugsepoctnovdec',
+           (CAST(strftime('%m', OLD.date, 'unixepoch') AS INTEGER) - 1) * 3 + 1, 3));
+
+    -- recompute NEW month (insert if missing)
+    INSERT INTO monthly_data (id, year, month, income, expenses)
+    VALUES (
+        CAST(strftime('%Y', NEW.date, 'unixepoch') AS INTEGER) || '-' ||
+        lower(substr('janfebmaraprmayjunjulaugsepoctnovdec',
+             (CAST(strftime('%m', NEW.date, 'unixepoch') AS INTEGER) - 1) * 3 + 1, 3)),
+        CAST(strftime('%Y', NEW.date, 'unixepoch') AS INTEGER),
+        lower(substr('janfebmaraprmayjunjulaugsepoctnovdec',
+             (CAST(strftime('%m', NEW.date, 'unixepoch') AS INTEGER) - 1) * 3 + 1, 3)),
+        (
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 1
+              AND date >= strftime('%s', date(NEW.date, 'unixepoch', 'start of month'))
+              AND date <  strftime('%s', date(NEW.date, 'unixepoch', 'start of month', '+1 month'))
+        ),
+        (
+            SELECT COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE type = 0
+              AND date >= strftime('%s', date(NEW.date, 'unixepoch', 'start of month'))
+              AND date <  strftime('%s', date(NEW.date, 'unixepoch', 'start of month', '+1 month'))
+        )
+    )
+    ON CONFLICT(year, month)
+    DO UPDATE SET
+        income   = excluded.income,
+        expenses = excluded.expenses;
+END;

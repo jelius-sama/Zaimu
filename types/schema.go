@@ -65,5 +65,3 @@ type MonthlyData struct {
     Expenses float64 `json:"expenses"`
 }
 
-// TODO: Tommorow, implement client API (don't forget to fill the DB with mock datas) replacing all the functions in mock-data, then work on backend APIs.
-

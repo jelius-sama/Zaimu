@@ -1,21 +1,40 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { mockTransactions, formatCurrency, formatDate } from "@/lib/mock-data"
-import { createSignal, createMemo, For } from "solid-js"
+import { formatCurrency, formatDate } from "@/lib/utils"
+import { useTransactions } from "@/lib/data"
+import { createSignal, createMemo, For, Show } from "solid-js"
 import ChevronRight from "lucide-solid/icons/chevron-right"
 import Search from "lucide-solid/icons/search"
 import { TextFieldInput, TextField } from "@/components/ui/text-field"
 import { useActiveTitle } from "@/contexts/config"
 import { StaticMetadata } from "@/contexts/metadata"
 import { Title } from "@/components/layout/title"
+import assert from "assert"
+import type { Transaction } from "@/types"
 
-export default function LedgerPage() {
+export default function Ledger() {
   useActiveTitle({ title: "Ledger", description: "Complete transaction history and details." })
+  const transactions = useTransactions()
 
-  const [selectedTxn, setSelectedTxn] = createSignal<(typeof mockTransactions)[0] | null>(null)
+  return (
+    <Show
+      when={!transactions.isLoading}
+      fallback={<></>}
+    >
+      <LedgerContent
+        transactions={transactions}
+      />
+    </Show>
+  )
+}
+
+function LedgerContent({ transactions }: { transactions: ReturnType<typeof useTransactions> }) {
+  assert(transactions.data != null && transactions.data != undefined)
+
+  const [selectedTxn, setSelectedTxn] = createSignal<Transaction | null>(null)
   const [searchQuery, setSearchQuery] = createSignal("")
 
   const filteredTransactions = createMemo(() =>
-    mockTransactions.filter(
+    transactions.data.filter(
       (txn) =>
         txn.merchant.toLowerCase().includes(searchQuery().toLowerCase()) ||
         txn.category.toLowerCase().includes(searchQuery().toLowerCase()) ||
