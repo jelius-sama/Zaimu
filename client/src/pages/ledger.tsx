@@ -76,7 +76,7 @@ function LedgerContent({ transactions }: { transactions: ReturnType<typeof useTr
                   <tbody>
                     <For each={filteredTransactions()}>
                       {(txn) => (
-                        <tr onClick={() => setSelectedTxn(txn)} class="cursor-pointer">
+                        <tr onClick={() => setSelectedTxn(txn as Transaction)} class="cursor-pointer">
                           <td class="whitespace-nowrap text-sm text-muted-foreground">{formatDate(txn.date)}</td>
                           <td class="font-medium">{txn.merchant}</td>
                           <td class="text-sm">{txn.category}</td>

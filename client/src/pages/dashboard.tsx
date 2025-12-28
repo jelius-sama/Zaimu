@@ -288,7 +288,7 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
                     <td class="whitespace-nowrap">{txn.date.toLocaleDateString()}</td>
                     <td class="font-medium">{txn.merchant}</td>
                     <td>{txn.category}</td>
-                    <td class={txn.type === "income" ? "text-green-600 font-semibold" : "text-foreground"}>
+                    <td class={txn.type === TTIncome ? "text-green-600 font-semibold" : "text-foreground"}>
                       {txn.type === "income" ? "+" : "-"}
                       {formatCurrency(txn.amount)}
                     </td>
@@ -299,7 +299,7 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
                           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                           }`}
                       >
-                        {txn.type === "income" ? "Income" : "Expense"}
+                        {txn.type === TTIncome ? "Income" : "Expense"}
                       </span>
                     </td>
                   </tr>

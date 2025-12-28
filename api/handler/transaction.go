@@ -64,6 +64,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
     }
     m := map[string]*agg{}
 
+    order := []string{}
     for rows.Next() {
         var (
             idStr string
@@ -91,14 +92,17 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
         if !ok {
             entry = &agg{tx: tx}
             m[idStr] = entry
+            order = append(order, idStr)
         }
+
         if tag.Valid {
             entry.tags = append(entry.tags, tag.String)
         }
     }
 
     var data []types.Transaction
-    for _, v := range m {
+    for _, id := range order {
+        v := m[id]
         v.tx.Tags = v.tags
         data = append(data, v.tx)
     }
