@@ -29,22 +29,29 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
     }
 
     rows, err := db.Conn.Query(`
-        SELECT
-            t.id,
-            t.date,
-            t.merchant,
-            t.category,
-            t.description,
-            t.amount,
-            t.type,
-            t.method,
-            tt.tag
-        FROM transactions t
-        LEFT JOIN transaction_tags tt
-            ON tt.transaction_id = t.id
-        ORDER BY t.date DESC
+    WITH paged_tx AS (
+        SELECT id
+        FROM transactions
+        ORDER BY date DESC
         LIMIT ? OFFSET ?
-    `, pageSize, offset)
+    )
+    SELECT
+        t.id,
+        t.date,
+        t.merchant,
+        t.category,
+        t.description,
+        t.amount,
+        t.type,
+        t.method,
+        tt.tag
+    FROM paged_tx p
+    JOIN transactions t ON t.id = p.id
+    LEFT JOIN transaction_tags tt
+        ON tt.transaction_id = t.id
+    ORDER BY t.date DESC
+`, pageSize, offset)
+
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -101,7 +108,7 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
         "metadata": Metadata{
             Page:        page,
             TotalItems:  total,
-            HasNextPage: (page * 10) < total,
+            HasNextPage: (page * pageSize) < total,
         },
     }
 
