@@ -8,7 +8,6 @@ import (
 var ApiRoutes = map[string]http.HandlerFunc{
     "GET /version":          handler.GetVersion,
     "GET /transactions":     handler.GetTransactions,
-    "POST /transaction":     handler.CreateTransaction,
     "GET /category_summery": handler.GetCategorySummary,
     "GET /monthly_data":     handler.GetMonthlyData,
 }

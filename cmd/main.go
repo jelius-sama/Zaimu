@@ -3,7 +3,6 @@ package main
 import (
     "database/sql"
     "errors"
-    _ "modernc.org/sqlite"
     "net/http"
     "os"
     "path/filepath"
@@ -12,7 +11,10 @@ import (
     "zaimu/db"
     "zaimu/logger"
     "zaimu/types"
+    unixsocket "zaimu/unix_socket"
     "zaimu/util"
+
+    _ "modernc.org/sqlite"
 )
 
 var (
@@ -63,7 +65,13 @@ func init() {
     os.Setenv("ROOT_PATH", filepath.Dir(filepath.Dir(exePath)))
     os.Setenv("version", Version)
     os.Setenv("env", Environment)
-    logger.Configure("env", "development")
+    logger.Configure(logger.Cnf{
+        IsDev: logger.IsDev{
+            EnvironmentVariable: logger.StringPtr("env"),
+            ExpectedValue:       logger.StringPtr("development"),
+        },
+        UseSyslog: true,
+    })
     os.Setenv("home", Home)
     os.Setenv("host", Host)
     os.Setenv("db_file", filepath.Join(Home, "/zaimu.db"))
@@ -99,6 +107,11 @@ type ServerResp struct {
 // TODO: Implement automatic cache purge when a new build is detected.
 func main() {
     defer db.Conn.Close()
+    go func() {
+        if err := unixsocket.StartUnixSocketServer(); err != nil {
+            logger.Panic("unix socket:", err)
+        }
+    }()
 
     // INFO:: startServer checks the current environment configuration.
     //         - In development mode, it starts the server on the DevPort.

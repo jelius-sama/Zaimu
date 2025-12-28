@@ -1,4 +1,4 @@
-package handler
+package unixsocket
 
 import (
     "encoding/json"
@@ -10,7 +10,7 @@ import (
     "zaimu/types"
 )
 
-type createTransactionReq struct {
+type insertTransactionReq struct {
     Date        time.Time               `json:"date"`
     Merchant    string                  `json:"merchant"`
     Category    string                  `json:"category"`
@@ -21,8 +21,13 @@ type createTransactionReq struct {
     Tags        []string                `json:"tags"`
 }
 
-func CreateTransaction(w http.ResponseWriter, r *http.Request) {
-    var req createTransactionReq
+func insertTransaction(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    var req insertTransactionReq
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         http.Error(w, "invalid JSON body", http.StatusBadRequest)
         return
