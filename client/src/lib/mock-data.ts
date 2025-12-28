@@ -17,12 +17,9 @@ export interface CategorySummary {
   percentage: number
 }
 
-export interface DateRange {
-  start: Date
-  end: Date
-}
-
 export interface MonthlyData {
+  id: string;
+  year: number;
   month: string;
   income: number;
   expenses: number;
@@ -178,11 +175,11 @@ export const mockCategorySummary: CategorySummary[] = [
 
 // Monthly comparison data
 export const monthlyData: Array<MonthlyData> = [
-  { month: "Aug", income: 6000, expenses: 3200 },
-  { month: "Sep", income: 6200, expenses: 3450 },
-  { month: "Oct", income: 6000, expenses: 3100 },
-  { month: "Nov", income: 6500, expenses: 3800 },
-  { month: "Dec", income: 6000, expenses: 2848 },
+  { id: "aug-2025", year: 2025, month: "Aug", income: 6000, expenses: 3200 },
+  { id: "sep-2025", year: 2025, month: "Sep", income: 6200, expenses: 3450 },
+  { id: "oct-2025", year: 2025, month: "Oct", income: 6000, expenses: 3100 },
+  { id: "nov-2025", year: 2025, month: "Nov", income: 6500, expenses: 3800 },
+  { id: "dec-2025", year: 2025, month: "Dec", income: 6000, expenses: 2848 },
 ]
 
 export function calculateCategorySummary(transactions: Transaction[]): CategorySummary[] {

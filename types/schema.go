@@ -1,6 +1,9 @@
 package types
 
-import "time"
+import (
+    "github.com/google/uuid"
+    "time"
+)
 
 type TransactionType int
 type TransactionMethod int
@@ -36,33 +39,30 @@ func (tm TransactionMethod) String() string {
 }
 
 type Transaction struct {
-    ID          string            `json:"id"`
+    ID          uuid.UUID         `json:"id"`
     Date        time.Time         `json:"date"`
     Merchant    string            `json:"merchant"`
     Category    string            `json:"category"`
     Description string            `json:"description"`
-    Amount      int64             `json:"amount"`
+    Amount      float64           `json:"amount"`
     Type        TransactionType   `json:"type"`
     Method      TransactionMethod `json:"method"`
     Tags        []string          `json:"tags"`
 }
 
 type CategorySummary struct {
-    Name       string `json:"name"`
-    Total      int    `json:"total"`
-    Count      int    `json:"count"`
-    Percentage int    `json:"percentage"`
-}
-
-type DateRange struct {
-    Start time.Time `json:"start"`
-    End   time.Time `json:"end"`
+    Name       string  `json:"name"`
+    Total      float64 `json:"total"`
+    Count      int     `json:"count"`
+    Percentage float64 `json:"percentage"`
 }
 
 type MonthlyData struct {
-    Month    string `json:"month"`
-    Income   int    `json:"income"`
-    Expenses int    `json:"expenses"`
+    ID       string  `json:"id"` // Concatination of month, "-", and year. Ex.: "2025-dec", "2026-jan"
+    Year     uint16  `json:"year"`
+    Month    string  `json:"month"`
+    Income   float64 `json:"income"`
+    Expenses float64 `json:"expenses"`
 }
 
 // TODO: Tommorow, implement client API (don't forget to fill the DB with mock datas) replacing all the functions in mock-data, then work on backend APIs.
