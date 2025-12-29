@@ -1,6 +1,6 @@
 /* @refresh reload */
 import '@/app.css'
-import { createSignal, type JSX, onMount, lazy, Suspense, ErrorBoundary, createEffect, createRenderEffect } from 'solid-js'
+import { Switch, createSignal, type JSX, onMount, lazy, Suspense, ErrorBoundary, createEffect, createRenderEffect, Match } from 'solid-js'
 import { render } from 'solid-js/web'
 import { ConfigProvider, useConfig } from '@/contexts/config'
 import { Router, Route, type RouteSectionProps, useLocation } from "@solidjs/router";
@@ -11,6 +11,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { ColorModeProvider, ColorModeScript, createLocalStorageManager } from "@kobalte/core"
 import { MetaProvider } from "@solidjs/meta"
 import { appState } from '@/contexts/app';
+import { toast } from 'solid-sonner';
 
 const queryClient = new QueryClient()
 
@@ -21,6 +22,7 @@ const Toaster = lazy(() => import('@/components/ui/sonner'))
 const Ledger = lazy(() => import("@/pages/ledger"))
 const Settings = lazy(() => import("@/pages/settings"))
 const Insights = lazy(() => import("@/pages/insights"))
+const Auth = lazy(() => import("@/pages/auth"))
 
 let rootEl = document.getElementById('root') as HTMLDivElement | null;
 
@@ -150,8 +152,9 @@ const ServerErrorWrapper = (props: { comp: JSX.Element }) => {
 
 export const Authenticate = (props: { page: JSX.Element }) => {
   const [status, setStatus] = createSignal<"pending" | "success" | "error">("pending")
+  const [isBanned, setIsBanned] = createSignal(false)
 
-  onMount(() => {
+  const validateStatus = () => {
     fetch(`/api/verify_auth`, {
       method: "GET",
       credentials: "include",
@@ -160,19 +163,69 @@ export const Authenticate = (props: { page: JSX.Element }) => {
         if (res.status === 200) {
           setStatus("success")
         } else if (res.status === 498) {
-          // INFO: Expired token
+          toast.warning("Session expired, sign in again!")
           setStatus("error")
+        } else if (res.status === 403) {
+          setStatus("error")
+          setIsBanned(true)
         } else {
           setStatus("error")
         }
       })
       .catch(() => setStatus("error"))
+  }
+
+  onMount(() => {
+    validateStatus()
   })
 
-  if (status() === "pending") return <p>Loading...</p>
-  if (status() === "error") return <p>Loading...</p>
+  return (
+    <Switch>
+      <Match when={status() === "success" && !isBanned()}>
+        {props.page}
+      </Match>
 
-  return props.page
+      <Match when={status() === "error" && !isBanned()}>
+        <Auth validateStatus={validateStatus} />
+      </Match>
+
+      <Match when={status() === "pending" && !isBanned()}>
+        <div class="flex min-h-screen items-center justify-center bg-background">
+          <div class="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+            <div class="flex h-32 w-32 items-center justify-center rounded-xl border border-border overflow-hidden">
+              <img src="/assets/zaimu.png" class="w-full h-full" />
+            </div>
+
+            <div class="h-8 w-8 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin" />
+          </div>
+        </div>
+      </Match>
+
+      <Match when={isBanned()}>
+        <div class="flex min-h-screen items-center justify-center px-4 py-8 bg-background">
+          <div class="w-full text-center space-y-6 animate-in fade-in duration-500">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-destructive/40 bg-destructive/10">
+              <span class="text-destructive text-xl font-medium">!</span>
+            </div>
+
+            <h1 class="text-3xl font-light tracking-tight text-foreground">
+              Access blocked
+            </h1>
+
+            <p class="text-sm text-muted-foreground leading-relaxed">
+              Your access has been temporarily restricted due to unusual activity.
+              <br />
+              Please try again later.
+            </p>
+
+            <p class="text-xs text-muted-foreground">
+              This restriction is automatic but will not expire on its own.
+            </p>
+          </div>
+        </div>
+      </Match>
+    </Switch>
+  )
 }
 
 render(() => {
@@ -185,7 +238,7 @@ render(() => {
           <ColorModeScript storageType={storageManager.type} />
           <ColorModeProvider storageManager={storageManager}>
 
-            <Router root={(props: RouteSectionProps) => <App {...props} />}>
+            <Router root={(props: RouteSectionProps) => <Authenticate page={<App {...props} />} />}>
               <Route path='/' component={() => <ServerErrorWrapper comp={<Dashboard />} />} />
               <Route path='/settings' component={() => <ServerErrorWrapper comp={<Settings />} />} />
               <Route path='/ledger' component={() => <ServerErrorWrapper comp={<Ledger />} />} />

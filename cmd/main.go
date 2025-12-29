@@ -3,6 +3,8 @@ package main
 import (
     "database/sql"
     "errors"
+    "github.com/joho/godotenv"
+    _ "modernc.org/sqlite"
     "net/http"
     "os"
     "path/filepath"
@@ -13,8 +15,6 @@ import (
     "zaimu/types"
     unixsocket "zaimu/unix_socket"
     "zaimu/util"
-
-    _ "modernc.org/sqlite"
 )
 
 var (
@@ -75,6 +75,7 @@ func init() {
     os.Setenv("home", Home)
     os.Setenv("host", Host)
     os.Setenv("db_file", filepath.Join(Home, "/zaimu.db"))
+    os.Setenv("secrets", filepath.Join(Home, "/secrets.env"))
 
     db.Conn, err = sql.Open("sqlite", os.Getenv("db_file"))
     if err != nil {
@@ -83,6 +84,10 @@ func init() {
 
     if err = db.InitializeSchema(db.Conn); err != nil {
         logger.Panic(err)
+    }
+
+    if err := godotenv.Load(os.Getenv("secrets")); err != nil {
+        logger.Panic("failed to load", os.Getenv("secrets"), ":", err)
     }
 }
 

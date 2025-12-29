@@ -29,6 +29,21 @@ export default function SettingsPage() {
     }
   })
 
+  const handleSignOut = async () => {
+    try {
+      await fetch("/api/sign_out", {
+        method: "GET",
+        credentials: "include",
+      })
+
+      // Client-side cleanup / navigation
+      window.location.href = "/"
+    } catch {
+      // Even if this fails, the token may already be invalid server-side
+      window.location.href = "/"
+    }
+  }
+
   return (
     <section class="p-4">
       <StaticMetadata />
@@ -154,10 +169,7 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <div class="space-y-3">
-            <Button variant="outline" class="w-full bg-transparent">
-              Change Password
-            </Button>
-            <Button variant="destructive" class="w-full">
+            <Button onClick={handleSignOut} variant="destructive" class="w-full">
               Sign Out
             </Button>
           </div>

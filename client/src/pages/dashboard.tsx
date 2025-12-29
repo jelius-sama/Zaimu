@@ -19,7 +19,6 @@ function getCSSVariable(variable: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
 }
 
-// TODO: Some static data in the component
 export default function Dashboard() {
   const date = new Date()
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
