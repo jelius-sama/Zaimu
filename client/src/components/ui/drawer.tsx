@@ -60,7 +60,7 @@ const DrawerContent = <T extends ValidComponent = "div">(
         )}
         {...rest}
       >
-        <div class="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+        <div class="mx-auto mt-4 h-1 w-[50px] rounded-full bg-muted" />
         {props.children}
       </DrawerPrimitive.Content>
     </DrawerPortal>

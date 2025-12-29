@@ -2,7 +2,7 @@ const CACHE_NAME = "pwa-cache-v1";
 
 const urlsToCache = [
   "/",
-  "/assets/adbu-logo.png",
+  "/assets/zaimu.png",
   "/assets/manifest.json",
   "/assets/icons/apple-icon-180.png",
   "/assets/icons/apple-splash-2048-2732.png",

@@ -18,7 +18,7 @@ import { Polymorphic } from "@kobalte/core"
 import type { VariantProps } from "class-variance-authority"
 import { cva } from "class-variance-authority"
 
-import { cn, useIsMobile, MOBILE_BREAKPOINT } from "@/lib/utils"
+import { cn, useIsMobile } from "@/lib/utils"
 import type { ButtonProps } from "@/components/ui/button"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"

@@ -225,7 +225,7 @@
             },
             {
                 "name": "theme-color",
-                "content": "#000000"
+                "content": "#09090B"
             },
             {
                 "name": "apple-mobile-web-app-status-bar-style",
@@ -284,6 +284,282 @@
             {
                 "rel": "canonical",
                 "href": "https://zaimu.jelius.dev"
+            }
+        ]
+    },
+    {
+        "path": "/ledger",
+        "title": "Ledger | Ζaimu",
+        "meta": [
+            {
+                "name": "description",
+                "content": "The canonical transaction store. Lists all parsed entries in order, with applied normalization, categorization, and metadata."
+            },
+            {
+                "name": "application-name",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "robots",
+                "content": "index, follow"
+            },
+            {
+                "name": "format-detection",
+                "content": "telephone=no"
+            },
+            {
+                "name": "apple-mobile-web-app-capable",
+                "content": "yes"
+            },
+            {
+                "name": "apple-mobile-web-app-title",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "theme-color",
+                "content": "#09090B"
+            },
+            {
+                "name": "apple-mobile-web-app-status-bar-style",
+                "content": "default"
+            },
+            {
+                "property": "og:title",
+                "content": "Ζaimu"
+            },
+            {
+                "property": "og:description",
+                "content": "The canonical transaction store. Lists all parsed entries in order, with applied normalization, categorization, and metadata."
+            },
+            {
+                "property": "og:url",
+                "content": "https://zaimu.jelius.dev/ledger"
+            },
+            {
+                "property": "og:site_name",
+                "content": "Ζaimu"
+            },
+            {
+                "property": "og:image",
+                "content": "/assets/zaimu.png"
+            },
+            {
+                "property": "og:type",
+                "content": "website"
+            },
+            {
+                "name": "twitter:card",
+                "content": "summary"
+            },
+            {
+                "name": "twitter:site",
+                "content": "@jelius_sama"
+            },
+            {
+                "name": "twitter:creator",
+                "content": "@jelius_sama"
+            },
+            {
+                "name": "twitter:title",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "twitter:description",
+                "content": "The canonical transaction store. Lists all parsed entries in order, with applied normalization, categorization, and metadata."
+            },
+            {
+                "name": "twitter:image",
+                "content": "/assets/zaimu.png"
+            }
+        ],
+        "link": [
+            {
+                "rel": "canonical",
+                "href": "https://zaimu.jelius.dev/ledger"
+            }
+        ]
+    },
+    {
+        "path": "/insights",
+        "title": "Insights | Ζaimu",
+        "meta": [
+            {
+                "name": "description",
+                "content": "Aggregated views derived from recorded transactions, including summaries, breakdowns, and basic trend analysis."
+            },
+            {
+                "name": "application-name",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "robots",
+                "content": "index, follow"
+            },
+            {
+                "name": "format-detection",
+                "content": "telephone=no"
+            },
+            {
+                "name": "apple-mobile-web-app-capable",
+                "content": "yes"
+            },
+            {
+                "name": "apple-mobile-web-app-title",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "theme-color",
+                "content": "#09090B"
+            },
+            {
+                "name": "apple-mobile-web-app-status-bar-style",
+                "content": "default"
+            },
+            {
+                "property": "og:title",
+                "content": "Ζaimu"
+            },
+            {
+                "property": "og:description",
+                "content": "Aggregated views derived from recorded transactions, including summaries, breakdowns, and basic trend analysis."
+            },
+            {
+                "property": "og:url",
+                "content": "https://zaimu.jelius.dev/insights"
+            },
+            {
+                "property": "og:site_name",
+                "content": "Ζaimu"
+            },
+            {
+                "property": "og:image",
+                "content": "/assets/zaimu.png"
+            },
+            {
+                "property": "og:type",
+                "content": "website"
+            },
+            {
+                "name": "twitter:card",
+                "content": "summary"
+            },
+            {
+                "name": "twitter:site",
+                "content": "@jelius_sama"
+            },
+            {
+                "name": "twitter:creator",
+                "content": "@jelius_sama"
+            },
+            {
+                "name": "twitter:title",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "twitter:description",
+                "content": "Aggregated views derived from recorded transactions, including summaries, breakdowns, and basic trend analysis."
+            },
+            {
+                "name": "twitter:image",
+                "content": "/assets/zaimu.png"
+            }
+        ],
+        "link": [
+            {
+                "rel": "canonical",
+                "href": "https://zaimu.jelius.dev/insights"
+            }
+        ]
+    },
+    {
+        "path": "/settings",
+        "title": "Settings | Ζaimu",
+        "meta": [
+            {
+                "name": "description",
+                "content": "Configuration for data sources, parsing behavior, categories, and system preferences."
+            },
+            {
+                "name": "application-name",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "robots",
+                "content": "index, follow"
+            },
+            {
+                "name": "format-detection",
+                "content": "telephone=no"
+            },
+            {
+                "name": "apple-mobile-web-app-capable",
+                "content": "yes"
+            },
+            {
+                "name": "apple-mobile-web-app-title",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "theme-color",
+                "content": "#09090B"
+            },
+            {
+                "name": "apple-mobile-web-app-status-bar-style",
+                "content": "default"
+            },
+            {
+                "property": "og:title",
+                "content": "Ζaimu"
+            },
+            {
+                "property": "og:description",
+                "content": "Configuration for data sources, parsing behavior, categories, and system preferences."
+            },
+            {
+                "property": "og:url",
+                "content": "https://zaimu.jelius.dev/settings"
+            },
+            {
+                "property": "og:site_name",
+                "content": "Ζaimu"
+            },
+            {
+                "property": "og:image",
+                "content": "/assets/zaimu.png"
+            },
+            {
+                "property": "og:type",
+                "content": "website"
+            },
+            {
+                "name": "twitter:card",
+                "content": "summary"
+            },
+            {
+                "name": "twitter:site",
+                "content": "@jelius_sama"
+            },
+            {
+                "name": "twitter:creator",
+                "content": "@jelius_sama"
+            },
+            {
+                "name": "twitter:title",
+                "content": "Ζaimu"
+            },
+            {
+                "name": "twitter:description",
+                "content": "Configuration for data sources, parsing behavior, categories, and system preferences."
+            },
+            {
+                "name": "twitter:image",
+                "content": "/assets/zaimu.png"
+            }
+        ],
+        "link": [
+            {
+                "rel": "canonical",
+                "href": "https://zaimu.jelius.dev/settings"
             }
         ]
     },

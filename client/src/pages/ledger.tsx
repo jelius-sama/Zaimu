@@ -33,7 +33,6 @@ export default function Ledger() {
   )
 }
 
-// TODO: Improve visual looks of the drawer
 function LedgerContent({ transactions }: { transactions: ReturnType<typeof useTransactions> }) {
   assert(transactions.data != null && transactions.data != undefined)
 
@@ -133,6 +132,9 @@ function TransactionDetailCard(props: { selectedTxn: Transaction; setSelectedTxn
 
   createEffect(() => {
     if (!isOpen()) {
+      // INFO: Let the animation/transition of closing the drawer be finished
+      //        before we trigger the drawer to be completely removed from the
+      //        DOM by setting the `setectedTxn` value to null.
       setTimeout(() => { props.setSelectedTxn(null) }, 300)
     }
   })
@@ -222,7 +224,7 @@ function TransactionDetailCard(props: { selectedTxn: Transaction; setSelectedTxn
 
       <Match when={isMobile()}>
         <Drawer open={isOpen()} onOpenChange={setIsOpen}>
-          <DrawerContent class="mx-4">
+          <DrawerContent class="mx-2">
             <DrawerHeader>
               <DrawerTitle>Transaction Details</DrawerTitle>
             </DrawerHeader>
