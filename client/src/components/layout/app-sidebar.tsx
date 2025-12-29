@@ -13,8 +13,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     useSidebar,
-    useIsMobile
 } from "@/components/ui/sidebar"
+import { useIsMobile } from "@/lib/utils"
 import { setUsableScreenSize } from "@/contexts/app"
 
 const ITEMS = [

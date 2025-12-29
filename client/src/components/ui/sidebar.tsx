@@ -18,7 +18,7 @@ import { Polymorphic } from "@kobalte/core"
 import type { VariantProps } from "class-variance-authority"
 import { cva } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"
+import { cn, useIsMobile, MOBILE_BREAKPOINT } from "@/lib/utils"
 import type { ButtonProps } from "@/components/ui/button"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -27,7 +27,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { TextField, TextFieldInput } from "@/components/ui/text-field"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
-export const MOBILE_BREAKPOINT = 768
 export const SIDEBAR_COOKIE_NAME = "sidebar:state"
 export const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 export const SIDEBAR_WIDTH = "16rem"
@@ -54,22 +53,6 @@ function useSidebar() {
   }
 
   return context
-}
-
-export function useIsMobile(fallback = false) {
-  const [isMobile, setIsMobile] = createSignal(fallback)
-
-  createEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setIsMobile(e.matches)
-    }
-    mql.addEventListener("change", onChange)
-    onChange(mql)
-    onCleanup(() => mql.removeEventListener("change", onChange))
-  })
-
-  return isMobile
 }
 
 type SidebarProviderProps = Omit<ComponentProps<"div">, "style"> & {
