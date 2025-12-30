@@ -147,7 +147,25 @@ const ServerErrorWrapper = (props: { comp: JSX.Element }) => {
     }
   })
 
-  return !isSSRLoaded() ? <p>Loading...</p> : errorPath() === location.pathname ? <h3>500 - Internal server error</h3> : props.comp
+  return (
+    <Switch fallback={props.comp}>
+      <Match when={!isSSRLoaded()}>
+        <div class="flex min-h-screen items-center justify-center bg-background">
+          <div class="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+            <div class="flex h-32 w-32 items-center justify-center rounded-xl border border-border overflow-hidden">
+              <img src="/assets/zaimu.png" class="w-full h-full" />
+            </div>
+
+            <div class="h-8 w-8 rounded-full border-2 border-muted-foreground border-t-transparent animate-spin" />
+          </div>
+        </div>
+      </Match>
+
+      <Match when={isSSRLoaded() && errorPath() === location.pathname}>
+        <h3>500 - Internal server error</h3>
+      </Match>
+    </Switch>
+  )
 }
 
 export const Authenticate = (props: { page: JSX.Element }) => {
