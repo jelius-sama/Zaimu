@@ -3,6 +3,7 @@ module zaimu
 go 1.24.5
 
 require (
+	github.com/DusanKasan/parsemail v1.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.6.0 // indirect
