@@ -24,7 +24,7 @@ export default function Dashboard() {
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
   const transactions = useTransactions()
   const monthlyData = useMonthlyData(date.getUTCFullYear())
-  const categorySummary = useCategorySummary(date.getUTCFullYear(), date.getUTCMonth())
+  const categorySummary = useCategorySummary(date.getUTCFullYear(), date.getUTCMonth() + 1)
 
   return (
     <Show

@@ -17,7 +17,7 @@ function getCSSVariable(variable: string): string {
 export default function Insights() {
   const date = new Date()
   useActiveTitle({ title: "Insights", description: "Deep dive into your spending patterns and trends." })
-  const categorySummary = useCategorySummary(date.getUTCFullYear(), date.getUTCMonth())
+  const categorySummary = useCategorySummary(date.getUTCFullYear(), date.getUTCMonth() + 1)
 
   return (
     <Show
