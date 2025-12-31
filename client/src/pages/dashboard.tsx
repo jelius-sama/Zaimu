@@ -144,7 +144,6 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
     percentChange(netIncome(), prevNetIncome())
   )
 
-
   // Compute colors from CSS variables
   const chartColors = createMemo(() => ({
     chart1: `hsl(${getCSSVariable('--chart-1')})`,
