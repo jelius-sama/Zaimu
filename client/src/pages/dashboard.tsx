@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTransactions, useMonthlyData, useCategorySummary, TTExpense, TTIncome } from "@/lib/data"
+import { type Transaction } from "@/types"
 import { formatCurrency } from "@/lib/utils"
 import TrendingUp from "lucide-solid/icons/trending-up"
 import ArrowUpRight from "lucide-solid/icons/arrow-up-right"
@@ -53,26 +54,74 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
   assert(monthlyData.data != null && monthlyData.data != undefined)
   assert(categorySummary.data != null && categorySummary.data != undefined)
 
-  const currentMonthTransactions = createMemo(() =>
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+
+  const previousMonthDate = new Date(currentYear, currentMonth - 1, 1)
+  const previousMonth = previousMonthDate.getMonth()
+  const previousYear = previousMonthDate.getFullYear()
+
+  const currentMonthTransactions = createMemo<Array<Transaction>>(() =>
     transactions.data.filter(
-      (t) => t.date.getMonth() === new Date().getMonth()
-    )
+      (t) =>
+        t.date.getMonth() === currentMonth &&
+        t.date.getFullYear() === currentYear
+    ) as Array<Transaction>
   )
 
-  const totalIncome = createMemo(() =>
-    currentMonthTransactions()
-      .filter((t) => t.type === TTIncome)
+  const previousMonthTransactions = createMemo<Array<Transaction>>(() =>
+    transactions.data.filter(
+      (t) =>
+        t.date.getMonth() === previousMonth &&
+        t.date.getFullYear() === previousYear
+    ) as Array<Transaction>
+  )
+
+  const sumByType = (list: Transaction[], type: Transaction["type"]) =>
+    list
+      .filter((t) => t.type === type)
       .reduce((sum, t) => sum + t.amount, 0)
+
+  const percentChange = (current: number, previous: number) => {
+    if (previous === 0) return current === 0 ? 0 : 100
+    return ((current - previous) / previous) * 100
+  }
+
+  const totalIncome = createMemo(() =>
+    sumByType(currentMonthTransactions(), TTIncome)
   )
 
   const totalExpenses = createMemo(() =>
-    currentMonthTransactions()
-      .filter((t) => t.type === TTExpense)
-      .reduce((sum, t) => sum + t.amount, 0)
+    sumByType(currentMonthTransactions(), TTExpense)
   )
 
   const netIncome = createMemo(() =>
     totalIncome() - totalExpenses()
+  )
+
+  const prevTotalIncome = createMemo(() =>
+    sumByType(previousMonthTransactions(), TTIncome)
+  )
+
+  const prevTotalExpenses = createMemo(() =>
+    sumByType(previousMonthTransactions(), TTExpense)
+  )
+
+  const prevNetIncome = createMemo(() =>
+    prevTotalIncome() - prevTotalExpenses()
+  )
+
+  const incomeChange = createMemo(() =>
+    percentChange(totalIncome(), prevTotalIncome())
+  )
+
+  const expensesChange = createMemo(() =>
+    percentChange(totalExpenses(), prevTotalExpenses())
+  )
+
+  const netIncomeChange = createMemo(() =>
+    percentChange(netIncome(), prevNetIncome())
   )
 
   // Compute colors from CSS variables
@@ -218,22 +267,22 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
         <MetricCard
           title="Total Income"
           value={formatCurrency(totalIncome())}
-          change="+5.2%"
-          trend="up"
+          change={`${incomeChange().toFixed(1)}%`}
+          trend={incomeChange() >= 0 ? "up" : "down"}
           icon={<ArrowUpRight class="w-5 h-5 text-green-600" />}
         />
         <MetricCard
           title="Total Expenses"
           value={formatCurrency(totalExpenses())}
-          change="-2.1%"
-          trend="down"
+          change={`${expensesChange().toFixed(1)}%`}
+          trend={expensesChange() <= 0 ? "up" : "down"}
           icon={<ArrowDownLeft class="w-5 h-5 text-red-600" />}
         />
         <MetricCard
           title="Net Income"
           value={formatCurrency(netIncome())}
-          change={netIncome() > 0 ? "+3.1%" : "-3.1%"}
-          trend={netIncome() > 0 ? "up" : "down"}
+          change={`${netIncomeChange().toFixed(1)}%`}
+          trend={netIncomeChange() >= 0 ? "up" : "down"}
           icon={<TrendingUp class="w-5 h-5 text-accent" />}
         />
       </div>
