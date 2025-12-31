@@ -20,6 +20,8 @@ function getCSSVariable(variable: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
 }
 
+type TrendType = "up" | "down" | "neutral" | "new"
+
 export default function Dashboard() {
   const date = new Date()
   useActiveTitle({ title: "Dashboard", description: "Welcome back. Here's your financial overview" })
@@ -83,9 +85,23 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
       .filter((t) => t.type === type)
       .reduce((sum, t) => sum + t.amount, 0)
 
-  const percentChange = (current: number, previous: number) => {
-    if (previous === 0) return current === 0 ? 0 : 100
-    return ((current - previous) / previous) * 100
+  const percentChange = (current: number, previous: number): { value: number; trend: TrendType } => {
+    // New activity - no previous data
+    if (previous === 0 && current === 0) {
+      return { value: 0, trend: "neutral" }
+    }
+    if (previous === 0) {
+      return { value: 0, trend: "new" }
+    }
+
+    const change = ((current - previous) / previous) * 100
+
+    // Neutral - no change
+    if (Math.abs(change) < 0.01) {
+      return { value: 0, trend: "neutral" }
+    }
+
+    return { value: change, trend: change >= 0 ? "up" : "down" }
   }
 
   const totalIncome = createMemo(() =>
@@ -112,17 +128,22 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
     prevTotalIncome() - prevTotalExpenses()
   )
 
-  const incomeChange = createMemo(() =>
+  const incomeChangeData = createMemo(() =>
     percentChange(totalIncome(), prevTotalIncome())
   )
 
-  const expensesChange = createMemo(() =>
-    percentChange(totalExpenses(), prevTotalExpenses())
-  )
+  const expensesChangeData = createMemo(() => {
+    const result = percentChange(totalExpenses(), prevTotalExpenses())
+    // Invert the trend for expenses (down is good, up is bad)
+    if (result.trend === "up") return { ...result, trend: "down" as TrendType }
+    if (result.trend === "down") return { ...result, trend: "up" as TrendType }
+    return result
+  })
 
-  const netIncomeChange = createMemo(() =>
+  const netIncomeChangeData = createMemo(() =>
     percentChange(netIncome(), prevNetIncome())
   )
+
 
   // Compute colors from CSS variables
   const chartColors = createMemo(() => ({
@@ -267,22 +288,22 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
         <MetricCard
           title="Total Income"
           value={formatCurrency(totalIncome())}
-          change={`${incomeChange().toFixed(1)}%`}
-          trend={incomeChange() >= 0 ? "up" : "down"}
+          change={incomeChangeData().trend === "new" ? "New activity" : `${incomeChangeData().value.toFixed(1)}%`}
+          trend={incomeChangeData().trend}
           icon={<ArrowUpRight class="w-5 h-5 text-green-600" />}
         />
         <MetricCard
           title="Total Expenses"
           value={formatCurrency(totalExpenses())}
-          change={`${expensesChange().toFixed(1)}%`}
-          trend={expensesChange() <= 0 ? "up" : "down"}
+          change={expensesChangeData().trend === "new" ? "New activity" : `${expensesChangeData().value.toFixed(1)}%`}
+          trend={expensesChangeData().trend}
           icon={<ArrowDownLeft class="w-5 h-5 text-red-600" />}
         />
         <MetricCard
           title="Net Income"
           value={formatCurrency(netIncome())}
-          change={`${netIncomeChange().toFixed(1)}%`}
-          trend={netIncomeChange() >= 0 ? "up" : "down"}
+          change={netIncomeChangeData().trend === "new" ? "New activity" : `${netIncomeChangeData().value.toFixed(1)}%`}
+          trend={netIncomeChangeData().trend}
           icon={<TrendingUp class="w-5 h-5 text-accent" />}
         />
       </div>
@@ -371,9 +392,35 @@ function MetricCard({
   title: string
   value: string
   change: string
-  trend: "up" | "down"
+  trend: TrendType
   icon: JSXElement
 }) {
+  const getTrendColor = () => {
+    switch (trend) {
+      case "up":
+        return "text-green-600"
+      case "down":
+        return "text-red-600"
+      case "neutral":
+        return "text-muted-foreground"
+      case "new":
+        return "text-blue-600"
+      default:
+        return "text-muted-foreground"
+    }
+  }
+
+  const getTrendText = () => {
+    switch (trend) {
+      case "neutral":
+        return "No change from last month"
+      case "new":
+        return change
+      default:
+        return `${change} from last month`
+    }
+  }
+
   return (
     <Card>
       <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -382,8 +429,8 @@ function MetricCard({
       </CardHeader>
       <CardContent>
         <div class="text-2xl font-bold text-foreground mb-2">{value}</div>
-        <p class={`text-xs font-medium ${trend === "up" ? "text-green-600" : "text-red-600"}`}>
-          {change} from last month
+        <p class={`text-xs font-medium ${getTrendColor()}`}>
+          {getTrendText()}
         </p>
       </CardContent>
     </Card>
