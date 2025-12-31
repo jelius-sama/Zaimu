@@ -209,7 +209,7 @@
             },
             {
                 "name": "robots",
-                "content": "index, follow"
+                "content": "noindex, nofollow"
             },
             {
                 "name": "format-detection",
@@ -301,7 +301,7 @@
             },
             {
                 "name": "robots",
-                "content": "index, follow"
+                "content": "noindex, nofollow"
             },
             {
                 "name": "format-detection",
@@ -325,7 +325,7 @@
             },
             {
                 "property": "og:title",
-                "content": "Ζaimu"
+                "content": "Ledger | Ζaimu"
             },
             {
                 "property": "og:description",
@@ -361,7 +361,7 @@
             },
             {
                 "name": "twitter:title",
-                "content": "Ζaimu"
+                "content": "Ledger | Ζaimu"
             },
             {
                 "name": "twitter:description",
@@ -393,7 +393,7 @@
             },
             {
                 "name": "robots",
-                "content": "index, follow"
+                "content": "noindex, nofollow"
             },
             {
                 "name": "format-detection",
@@ -417,7 +417,7 @@
             },
             {
                 "property": "og:title",
-                "content": "Ζaimu"
+                "content": "Insights | Ζaimu"
             },
             {
                 "property": "og:description",
@@ -453,7 +453,7 @@
             },
             {
                 "name": "twitter:title",
-                "content": "Ζaimu"
+                "content": "Insights | Ζaimu"
             },
             {
                 "name": "twitter:description",
@@ -485,7 +485,7 @@
             },
             {
                 "name": "robots",
-                "content": "index, follow"
+                "content": "noindex, nofollow"
             },
             {
                 "name": "format-detection",
@@ -509,7 +509,7 @@
             },
             {
                 "property": "og:title",
-                "content": "Ζaimu"
+                "content": "Settings | Ζaimu"
             },
             {
                 "property": "og:description",
@@ -545,7 +545,7 @@
             },
             {
                 "name": "twitter:title",
-                "content": "Ζaimu"
+                "content": "Settings | Ζaimu"
             },
             {
                 "name": "twitter:description",

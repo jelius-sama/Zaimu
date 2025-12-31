@@ -12,6 +12,7 @@ import (
 type senderParser func(rawEml []byte) (*types.Transaction, error)
 
 var senderParsers = map[string]senderParser{
+    "no-reply@famapp.in": parseFamAppEmail, // INFO: This one should be good to go.
     // INFO: The email below might be wrong, requires testing to
     //        see what email they actually use in practice.
     "no-reply@google.com": parseGPayEmail,

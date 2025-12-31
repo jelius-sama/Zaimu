@@ -8,6 +8,7 @@ import { A } from "@solidjs/router"
 import { useActiveTitle } from "@/contexts/config"
 import { PathBasedMetadata } from "@/contexts/metadata"
 
+// TODO: Improve not found and error page
 export default function NotFound() {
   useActiveTitle({ title: "Page Not Found", description: null })
 
