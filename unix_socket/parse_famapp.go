@@ -134,11 +134,11 @@ func parseAmount(text string) (float64, error) {
 func parseMerchant(text string, transactionType types.TransactionType) (string, error) {
     var pattern string
     if transactionType == types.TTExpense {
-        // For payments: "to NAME"
-        pattern = `to\s+([A-Z][A-Z\s]+?)(?:\s+Transaction ID|$)`
+        // For payments: "to NAME" - matches until "Transaction ID"
+        pattern = `to\s+(.+?)\s+Transaction ID`
     } else {
-        // For receipts: "from NAME"
-        pattern = `from\s+([A-Z][A-Z\s]+?)(?:\s+Transaction ID|$)`
+        // For receipts: "from NAME" - matches until "Transaction ID"
+        pattern = `from\s+(.+?)\s+Transaction ID`
     }
 
     re := regexp.MustCompile(pattern)
@@ -150,7 +150,7 @@ func parseMerchant(text string, transactionType types.TransactionType) (string, 
 
     // Clean up the merchant name
     merchant := strings.TrimSpace(matches[1])
-    // Remove extra whitespace
+    // Remove extra whitespace and newlines
     merchant = regexp.MustCompile(`\s+`).ReplaceAllString(merchant, " ")
 
     return merchant, nil
