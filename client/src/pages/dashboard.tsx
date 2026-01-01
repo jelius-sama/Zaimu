@@ -52,6 +52,7 @@ function DashboardContent({ transactions, monthlyData, categorySummary }: { tran
     ChartJS.register(...registerables)
   });
 
+  // TODO: Fix this asserts, it's not the best solution in production.
   assert(transactions.data != null && transactions.data != undefined)
   assert(monthlyData.data != null && monthlyData.data != undefined)
   assert(categorySummary.data != null && categorySummary.data != undefined)

@@ -79,11 +79,15 @@ func parseFamAppHTML(htmlContent string) (*types.Transaction, error) {
     }, nil
 }
 
-// extractText recursively extracts all text content from HTML nodes
+// extractText recursively extracts all text content from HTML nodes, excluding style and script tags
 func extractText(n *html.Node) string {
     var text strings.Builder
     var extract func(*html.Node)
     extract = func(node *html.Node) {
+        // Skip style and script tags
+        if node.Type == html.ElementNode && (node.Data == "style" || node.Data == "script") {
+            return
+        }
         if node.Type == html.TextNode {
             text.WriteString(node.Data)
             text.WriteString(" ")
