@@ -32,6 +32,7 @@ export default function Insights() {
   )
 }
 
+// TODO: Update some static data in charts.
 function InsightsContent({ categorySummary }: { categorySummary: ReturnType<typeof useCategorySummary> }) {
   onMount(() => {
     ChartJS.register(...registerables)
