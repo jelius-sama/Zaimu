@@ -88,7 +88,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if err := mailer.SendMail(cnf.Host, cnf.Port, cnf.Username, cnf.Password, cnf.From, expectedEmail, subject, body, nil, nil, nil); err != nil {
+    if err := mailer.SendMail(cnf, cnf.From, expectedEmail, subject, body, nil, nil, nil); err != nil {
         http.Error(w, "failed to send otp", http.StatusInternalServerError)
         return
     }
